@@ -1,0 +1,8 @@
+# ignore pycharm
+.idea/*
+
+# ignore executable files
+*.pyc
+*.so
+*.o
+*.c
