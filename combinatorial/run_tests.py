@@ -17,9 +17,14 @@ def run(filename, tests, function):
     start = time()
     ans = function(cvrp)
     end = time()
-
     elapsed = end - start
-    print("{:.3f}s;{};{}".format(elapsed, ans.get_fitness(), ans.get_tour()))
+
+    tour = ans.get_tour()
+    for i in range(len(tour)):
+      if tour[i][-1] < tour[i][0]:
+        tour[i] = tour[i][::-1]
+    tour = sorted(tour)
+    print("{:.3f}s;{};{}".format(elapsed, ans.get_fitness(), tour))
 
     total_elapsed += elapsed
     avg_answer += ans.get_fitness()

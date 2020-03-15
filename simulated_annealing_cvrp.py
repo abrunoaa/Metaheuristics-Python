@@ -1,7 +1,7 @@
 from combinatorial.cvrp.solution import Solution
 from combinatorial.simulated_annealing import simulated_annealing
 
-from run_tests import run
+from combinatorial.run_tests import run
 
 
 def function(cvrp):
@@ -13,5 +13,5 @@ def function(cvrp):
 
 # debugging
 if __name__ == "__main__":
-  # run('A\\A-n32-k5.vrp', 100, function)
-  run('X\\X-n256-k16.vrp', 100, function)
+  run('A\\A-n32-k5.vrp', 100, function)
+  # run('X\\X-n256-k16.vrp', 100, function)

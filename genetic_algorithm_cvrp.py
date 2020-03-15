@@ -1,7 +1,7 @@
 from combinatorial.cvrp.chromosome import Chromosome
 from combinatorial.genetic_algorithm import genetic_algorithm
 
-from run_tests import run
+from combinatorial.run_tests import run
 
 
 def function(cvrp):
