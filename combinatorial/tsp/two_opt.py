@@ -1,3 +1,20 @@
+#  two_opt.py
+#
+#  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 from copy import copy
 from logging import info
 
@@ -16,7 +33,7 @@ def two_opt(tour, distance):
   assert callable(distance), "'distance' must be a function"
   if tour is None or len(tour) < 2:
     return 0, [0]
-  assert len(set(tour)) == len(tour), "Duplicates found in tour"
+  assert len(set(tour)) == len(tour), "Duplicates found in tour: {}".format(tour)
   assert tour[-1] == 0, "Expected depot at end of tour, found {}".format(tour[-1])
   tour = copy(tour)
   improve = 0
@@ -38,6 +55,8 @@ def two_opt(tour, distance):
           left = i + 1
           right = j
     if best == 0:
+      # implementation problems
+      assert len(set(tour)) == len(tour) and tour[-1] == 0, "Invalid state after execution"
       return improve, tour
     assert left < right
     improve += best
