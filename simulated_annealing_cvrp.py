@@ -15,20 +15,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from combinatorial.cvrp.solution import Solution
-from combinatorial.simulated_annealing import simulated_annealing
+import sys
 
-from combinatorial.run_tests import run
-
-
-def function(cvrp):
-  max_temperature = 10
-  min_temperature = 1
-  cooling_rate = .999
-  return simulated_annealing(max_temperature, min_temperature, cooling_rate, Solution(cvrp))
+from combinatorial.cvrp.cvrp import Cvrp
+from combinatorial.cvrp.cvrp_solution import CvrpSolution
+from combinatorial.simulated_annealing import SimulatedAnnealing
+from run_tests import run
 
 
-# debugging
 if __name__ == "__main__":
-  run('A\\A-n32-k5.vrp', 100, function)
-  # run('X\\X-n256-k16.vrp', 100, function)
+  instance = Cvrp.read(sys.argv[1][2:])
+  repeat = 5
+  sa = SimulatedAnnealing.build(start_temperature=10, min_temperature=1, alpha=.999)
+  run(instance, CvrpSolution, repeat, sa)

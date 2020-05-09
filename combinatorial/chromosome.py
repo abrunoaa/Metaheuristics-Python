@@ -1,4 +1,4 @@
-#  chromosome.py
+#  cvrp_chromosome.py
 #
 #  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
 #
@@ -21,10 +21,25 @@ from combinatorial.solution import Solution
 
 
 class Chromosome(Solution):
+  """
+  Defines the behavior of a chromosome for Genetic Algorithm.
+  """
+
   @abstractmethod
-  def mate(self, other):
+  def mate(self, other: 'Chromosome') -> 'Chromosome':
+    """
+    Mate current solution with other.
+
+    :param other: Solution to mate with.
+    :return: A new solution based on this and other.
+    """
     pass
 
   @abstractmethod
-  def mutate(self):
+  def mutate(self) -> None:
+    """
+    Change this solution.
+
+    :return: None
+    """
     pass

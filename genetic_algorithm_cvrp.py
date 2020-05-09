@@ -15,22 +15,17 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from combinatorial.cvrp.chromosome import Chromosome
-from combinatorial.genetic_algorithm import genetic_algorithm
+import sys
 
-from combinatorial.run_tests import run
-
-
-def function(cvrp):
-  iterations = 100
-  crossover = .9
-  elitism = .9
-  mutation = .9
-  pop_size = 30
-  return genetic_algorithm(iterations, crossover, elitism, mutation, [Chromosome(cvrp) for _ in range(pop_size)])
+from combinatorial.cvrp.cvrp import Cvrp
+from combinatorial.cvrp.cvrp_chromosome import CvrpChromosome
+from combinatorial.genetic_algorithm import GeneticAlgorithm
+from run_tests import run
 
 
-# debugging
 if __name__ == "__main__":
-  # run('A\\A-n32-k5.vrp', 100, function)
-  run('X\\X-n256-k16.vrp', 100, function)
+  instance = Cvrp.read(sys.argv[1][2:])
+  pop_size = 30
+  repeat = 5
+  ga = GeneticAlgorithm.build(iterations=100, crossover=.9, elitism=.9, mutation=.9)
+  run(instance, lambda x: [CvrpChromosome(x) for _ in range(pop_size)], repeat, ga)

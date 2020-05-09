@@ -19,22 +19,50 @@ from abc import ABC, abstractmethod
 
 
 class Solution(ABC):
+  """
+  Class to define a solution.
+  """
 
   def __str__(self):
-    return str(self.get_fitness()) + " " + str(self.get_tour())
+    return str(self.get_fitness()) + " " + str(self.get_solution())
 
   @abstractmethod
   def get_fitness(self):
+    """
+    :return: Fitness of current solution.
+    """
     pass
 
   @abstractmethod
-  def get_tour(self):
+  def get_solution(self):
+    """
+    :return: Current tour.
+    """
     pass
 
   @abstractmethod
   def neighbor(self):
+    """
+    Search for a new solution around current one.
+
+    :return: A new solution based on current one.
+    """
     pass
 
   @abstractmethod
   def local_search(self):
+    """
+    Move this solution to optimize it.
+
+    :return: None.
+    """
+    pass
+
+  @abstractmethod
+  def validate(self) -> None:
+    """
+    Abort if current state of solution is invalid.
+
+    :return: None
+    """
     pass

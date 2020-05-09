@@ -17,31 +17,59 @@
 
 from math import exp
 from random import uniform
-from logging import info
 
+from combinatorial.metaheuristic import MetaheuristicSingleSolution
 from combinatorial.solution import Solution
 
 
-def simulated_annealing(initial_temperature, min_temperature, alpha, initial_solution: Solution):
+class SimulatedAnnealing(MetaheuristicSingleSolution):
   """
-  Simulated Annealing implementation. This function works based on class Solution.
-  :param initial_temperature: The initial temperature of algorithm.
-  :param min_temperature: The stopping temperature of algorithm.
-  :param alpha: The factor of cooling.
-  :param initial_solution: A starting solution, which is expected to be based on class Solution.
-  :return: The best found solution.
+  Simulated Annealing implementation.
+  This algorithm works based on class Solution.
   """
-  info("Starting simulated annealing")
-  best = initial_solution
-  x = best
-  temperature = initial_temperature
-  while temperature > min_temperature:
-    info("SA searching for new solution")
-    y = x.neighbor()
-    y.local_search()
-    if y.get_fitness() < x.get_fitness() or uniform(0, 1) < exp((x.get_fitness() - y.get_fitness()) / temperature):
-      x = y
-      if x.get_fitness() < best.get_fitness():
-        best = x
-    temperature *= alpha
-  return best
+
+  @staticmethod
+  def build(start_temperature, min_temperature, alpha):
+    """
+    Util function to build this class.
+
+    :param start_temperature: The initial temperature of algorithm.
+    :param min_temperature: The stopping temperature of algorithm.
+    :param alpha: Cooling rate.
+    :return: A tuple with the values to build this class.
+    """
+    return SimulatedAnnealing((start_temperature, min_temperature, alpha))
+
+  def __init__(self, args):
+    """
+    Create an instance of simulated annealing, which can be used with many solutions.
+
+    :param args: A tuple with three values (see {@link build}): start_temperature, min_temperature and alpha.
+    """
+    # TODO: change args to namedtuple
+    assert len(args) == 3, "Expected three args"
+    assert all(args[i] is not None for i in range(3)), "Found variable with None"
+
+    self.__start_temperature = args[0]
+    self.__min_temperature = args[1]
+    self.__alpha = args[2]
+
+  def execute(self, initial_solution: Solution):
+    """
+    Simulated Annealing implementation.
+
+    :param initial_solution: A starting solution, which is expected to be based on class Solution.
+    :return: The best solution found.
+    """
+    best = initial_solution
+    x = best
+    temperature = self.__start_temperature
+    while temperature > self.__min_temperature:
+      y = x.neighbor()
+      y.local_search()
+      if y.get_fitness() < x.get_fitness() or uniform(0, 1) < exp((x.get_fitness() - y.get_fitness()) / temperature):
+        x = y
+        if x.get_fitness() < best.get_fitness():
+          best = x
+      temperature *= self.__alpha
+    return best
