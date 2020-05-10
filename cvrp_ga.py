@@ -1,4 +1,4 @@
-#  ga_cvrp.py
+#  cvrp_ga.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #

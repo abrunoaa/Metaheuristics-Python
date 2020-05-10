@@ -1,4 +1,4 @@
-#  aco_tsp.py
+#  tsp_aco.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
