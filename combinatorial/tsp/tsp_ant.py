@@ -39,7 +39,7 @@ class TspAnt(Ant, TspSolution):
     for i in range(0, n - 1):
       # FIXME:
       #  Why the solution is better for higher values of alpha and beta?
-      #  Because they are small and becomes 0?
+      #  Because the variables are small and becomes 0?
       probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in candidate]
       u = candidate[roulette(x for x in probability)]
       candidate.remove(u)
