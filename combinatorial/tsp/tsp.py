@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 from typing import List, Tuple
 
 from combinatorial.instance import Instance
@@ -25,15 +25,37 @@ class Tsp(Instance):
   Instance of TSP.
   """
 
-  def __init__(self, location: List[Tuple[int, int]]):
+  def __init__(self, locations: List[Tuple[int, int]]):
     """
     Create an instance of TSP.
 
-    :param location: List of locations (x, y) of each node
+    :param locations: List of locations (x, y) of each node
     """
-    assert len(location) >= 3, "Expected at least 3 nodes"
+    assert len(locations) >= 3, "Expected at least 3 nodes"
 
-    super().__init__(location)
+    self.n = len(locations)
+    self.location = locations
+
+  def get_n(self):
+    return self.n
+
+  def get_locations(self):
+    return self.location
+
+  def cost(self, u: int, v: int):
+    """
+    Cost to travel from u to v.
+
+    :param u: Node from graph.
+    :param v: Node from graph.
+    :return: The cost to travel from u to v.
+    """
+    diff = lambda i: self.location[u][i] - self.location[v][i]
+    print(u, v, len(self.location), self.get_n())
+    print(self.location[u], self.location[v])
+    a = diff(0)
+    b = diff(1)
+    return int(sqrt(a * a + b * b) + 0.5)
 
   @staticmethod
   def read(filename: str):

@@ -14,7 +14,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
+from math import sqrt
 from typing import List, Tuple
 
 from combinatorial.instance import Instance
@@ -25,7 +26,7 @@ class Cvrp(Instance):
   Instance of CVRP.
   """
 
-  def __init__(self, n: int, capacity: int, demand: List[int], location: List[Tuple[int, int]]):
+  def __init__(self, n: int, capacity: int, demand: List[int], locations: List[Tuple[int, int]]):
     """
     Create an instance.
 
@@ -34,19 +35,43 @@ class Cvrp(Instance):
     :param n: Number of clients (>= 2).
     :param capacity: Capacity of truck (> 0).
     :param demand: Demand of depot (= 0) and of the n clients (> 0).
-    :param location: Location of depot and of the n clients.
+    :param locations: Location of depot and of the n clients.
     """
     assert n >= 2, "Need at least 2 clients: {} < 2".format(n)
     assert capacity > 0, "Invalid capacity: {}".format(capacity)
-    assert len(location) == n + 1, "Expected {} locations".format(n + 1)
+    assert len(locations) == n + 1, "Expected {} locations".format(n + 1)
     assert len(demand) == n + 1, "Expected {} demands".format(n + 1)
     assert demand[0] == 0, "Depot (node 0) must have demand = 0, but was {}".format(demand[0])
     assert min(demand[1:]) > 0, "Invalid demand: {}".format(min(demand))
     assert max(demand) <= capacity, "Demand doesn't fit on truck: {} > {}".format(max(demand), capacity)
 
-    super().__init__(location)
+    self.n = n
+    self.location = locations
     self.capacity = capacity
     self.demand = demand
+
+  def get_n(self):
+    return self.n
+
+  def get_locations(self):
+    return self.location
+
+  def cost(self, u: int, v: int):
+    """
+    Cost to travel from u to v.
+
+    The cost is 2D distance, rounded to nearest integer.
+
+    :param u: Node from graph.
+    :param v: Node from graph.
+    :return: The cost to travel from u to v.
+    """
+    diff = lambda i: self.location[u][i] - self.location[v][i]
+    print(u, v, len(self.location), self.get_n())
+    print(self.location[u], self.location[v])
+    a = diff(0)
+    b = diff(1)
+    return int(sqrt(a * a + b * b) + 0.5)
 
   def get_capacity(self):
     """
