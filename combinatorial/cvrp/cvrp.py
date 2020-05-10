@@ -29,6 +29,8 @@ class Cvrp(Instance):
     """
     Create an instance.
 
+    The depot must be node 0, while clients are nodes in the range [1, n].
+
     :param n: Number of clients (>= 2).
     :param capacity: Capacity of truck (> 0).
     :param demand: Demand of depot (= 0) and of the n clients (> 0).
@@ -39,7 +41,7 @@ class Cvrp(Instance):
     assert len(location) == n + 1, "Expected {} locations".format(n + 1)
     assert len(demand) == n + 1, "Expected {} demands".format(n + 1)
     assert demand[0] == 0, "Depot (node 0) must have demand = 0, but was {}".format(demand[0])
-    assert min(demand[1:]) > 0, "Invalid demand = {}!".format(min(demand))
+    assert min(demand[1:]) > 0, "Invalid demand: {}".format(min(demand))
     assert max(demand) <= capacity, "Demand doesn't fit on truck: {} > {}".format(max(demand), capacity)
 
     super().__init__(location)

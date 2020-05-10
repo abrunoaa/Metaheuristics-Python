@@ -34,8 +34,8 @@ class CvrpSolution(Solution):
     """
     Create a new solution for CVRP.
 
-    :param cvrp: Instance that this solution will solve.
-    :param tour: Starting tour to work with.
+    :param cvrp: Instance that this solution solve.
+    :param tour: Starting tour to work with. All nodes must be in range [1, n].
     """
     if tour is None:
       tour = [i for i in range(1, cvrp.get_n() + 1)]
@@ -49,7 +49,7 @@ class CvrpSolution(Solution):
     self.tour = tour
     self.fitness = None
     self.truck = None
-    self._optimal_split()
+    self._evaluate_fitness()
 
   def get_instance(self):
     return self.cvrp
@@ -91,7 +91,7 @@ class CvrpSolution(Solution):
     self.__two_opt()
     self.validate()
 
-  def _optimal_split(self):
+  def _evaluate_fitness(self):
     """
     Given a TSP-like solution, calculates the optimal positions for splitting into trucks.
     Used for building fitness and truck list of current solution, given a valid tour.
