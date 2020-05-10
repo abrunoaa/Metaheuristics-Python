@@ -28,5 +28,5 @@ if __name__ == "__main__":
   repeat = 5
   n = instance.get_n()
   pheromone = [[0.5] * n] * n
-  aco = AntColonyOptimization.build(iterations=100, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
+  aco = AntColonyOptimization.build(iterations=10, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
   run(instance, lambda x: [TspAnt(x) for _ in range(pop_size)], repeat, aco)

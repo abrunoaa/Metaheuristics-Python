@@ -27,5 +27,5 @@ if __name__ == "__main__":
   pop_size = 30
   repeat = 5
   pheromone = AntColonyOptimization.default_pheromone(instance.get_n() + 1)
-  ga = AntColonyOptimization.build(iterations=100, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
+  ga = AntColonyOptimization.build(iterations=10, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
   run(instance, lambda x: [CvrpAnt(x) for _ in range(pop_size)], repeat, ga)
