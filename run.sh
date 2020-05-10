@@ -11,10 +11,11 @@ for file in $(find . -name '*a280.tsp'); do
   if [ ! -f "$result_file" ]; then
     echo "Processing $result_file"
     mkdir -p "$results$dir"
-#    pypy3 simulated_annealing_tsp.py "$file" # >"$result_file"
-#    pypy3 simulated_annealing_cvrp.py "$file" # >"$result_file"
-    pypy3 genetic_algorithm_tsp.py "$file" # >"$result_file"
-#    pypy3 genetic_algorithm_cvrp.py "$file" # >"$result_file"
+#    pypy3 sa_tsp.py "$file" # >"$result_file"
+#    pypy3 ga_tsp.py "$file" # >"$result_file"
+    pypy3 aco_tsp.py "$file" # >"$result_file"
+#    pypy3 sa_cvrp.py "$file" # >"$result_file"
+#    pypy3 ga_cvrp.py "$file" # >"$result_file"
   else
     echo "Ignoring $result_file"
   fi

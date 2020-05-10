@@ -21,6 +21,7 @@ from time import process_time as time
 def run(instance, solution_builder, number_of_tests, metaheuristic, bks=None):
   """
   Run several tests on an instance with a specific metaheuristic.
+
   :param instance: Instance to test.
   :param solution_builder: Creates a new solution. This must be callable and receive the instance as argument.
   :param number_of_tests: Number of times to repeat the test.
@@ -38,9 +39,6 @@ def run(instance, solution_builder, number_of_tests, metaheuristic, bks=None):
     ans = metaheuristic.execute(solution_builder(instance))
     end = time()
     elapsed = end - start
-
-    if isinstance(ans, list):
-      ans = ans[0]
 
     if bks is not None and ans.get_fitness() < bks:
       print("Better optimum found: ", end='')
