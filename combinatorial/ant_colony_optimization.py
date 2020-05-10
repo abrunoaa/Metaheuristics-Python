@@ -67,6 +67,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     for iteration in range(self.__iterations):
       for ant in population:
         ant.travel(self.__alpha, self.__beta, self.__pheromone, quality)
+        ant.local_search()
 
       population.sort(key=lambda x: x.get_fitness())
       if population[0].get_fitness() < best.get_fitness():
