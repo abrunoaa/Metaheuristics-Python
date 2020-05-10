@@ -22,9 +22,9 @@ for file in $(find . -name '*X\\X-n101-k25.vrp'); do
     echo "Processing $file"
     mkdir -p "$results$dir"
 
-#    pypy3 cvrp_aco.py "$file" # >"$result_file"
+    pypy3 cvrp_aco.py "$file" # >"$result_file"
 #    pypy3 cvrp_ga.py "$file" # >"$result_file"
-    pypy3 cvrp_sa.py "$file" # >"$result_file"
+#    pypy3 cvrp_sa.py "$file" # >"$result_file"
   else
     echo "Ignoring $file"
   fi
