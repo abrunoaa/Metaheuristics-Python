@@ -44,8 +44,11 @@ class TspSolution(Solution):
 
     self.tsp = tsp
     self.tour = tour
-    self.fitness = sum(tsp.cost(tour[i - 1], tour[i]) for i in range(tsp.get_n()))
+    self._evaluate_fitness()
     self.validate()
+
+  def get_instance(self):
+    return self.tsp
 
   def get_fitness(self):
     """
@@ -63,7 +66,6 @@ class TspSolution(Solution):
 
     :return: Current tour
     """
-    assert len(self.tour) == len(self.tour[-2::-1] + [0])
     return self.tour if self.tour[0] < self.tour[-2] else self.tour[-2::-1] + [0]
 
   def neighbor(self):
@@ -84,6 +86,9 @@ class TspSolution(Solution):
     """
     self.fitness -= TspSolution.two_opt(self.tour, self.tsp.cost)
     self.validate()
+
+  def _evaluate_fitness(self):
+    self.fitness = sum(self.tsp.cost(self.tour[i - 1], self.tour[i]) for i in range(self.tsp.get_n()))
 
   @staticmethod
   def two_opt(tour: List[int], distance: Callable):
@@ -145,11 +150,11 @@ class TspSolution(Solution):
 
       assert tsp is not None
       assert tour is not None
-      assert tour[-1] == 0, "Last node must be 0"
-      assert min(tour) >= 0, "Invalid node found"
-      assert max(tour) < n, "Invalid node found"
-      assert len(tour) == n, "Invalid tour length"
-      assert len(set(tour)) == len(tour), "Duplicates found in tour"
+      assert tour[-1] == 0, "Last node must be 0, found {}".format(tour[-1])
+      assert min(tour) >= 0, "Invalid node found: {} < 0".format(min(tour))
+      assert max(tour) < n, "Invalid node found: {} >= {}".format(max(tour), n)
+      assert len(tour) == n, "Invalid tour length: {} != {}".format(len(tour), n)
+      assert len(set(tour)) == len(tour), "Duplicates in tour"
 
       expected_fitness = sum(tsp.cost(tour[i - 1], tour[i]) for i in range(n))
-      assert self.fitness == expected_fitness, "Wrong fitness value"
+      assert self.fitness == expected_fitness, "Wrong fitness value: {} != {}".format(self.fitness, expected_fitness)

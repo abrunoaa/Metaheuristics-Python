@@ -17,6 +17,8 @@
 
 from abc import ABC, abstractmethod
 
+from combinatorial.instance import Instance
+
 
 class Solution(ABC):
   """
@@ -25,6 +27,13 @@ class Solution(ABC):
 
   def __str__(self):
     return str(self.get_fitness()) + " " + str(self.get_solution())
+
+  @abstractmethod
+  def get_instance(self) -> Instance:
+    """
+    :return: The instance of this solution
+    """
+    pass
 
   @abstractmethod
   def get_fitness(self):

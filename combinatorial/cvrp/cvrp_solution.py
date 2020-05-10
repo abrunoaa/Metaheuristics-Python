@@ -51,6 +51,9 @@ class CvrpSolution(Solution):
     self.truck = None
     self._optimal_split()
 
+  def get_instance(self):
+    return self.cvrp
+
   def get_fitness(self):
     """
     Cost value of this solution.

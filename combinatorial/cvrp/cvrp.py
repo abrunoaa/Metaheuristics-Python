@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from math import sqrt
 from typing import List, Tuple
 
 from combinatorial.instance import Instance
@@ -43,19 +42,9 @@ class Cvrp(Instance):
     assert min(demand[1:]) > 0, "Invalid demand = {}!".format(min(demand))
     assert max(demand) <= capacity, "Demand doesn't fit on truck: {} > {}".format(max(demand), capacity)
 
-    self.__n = n
-    self.__capacity = capacity
-    self.__demand = demand
-    self.__location = location
-
-  def get_n(self):
-    """
-    Return the number of clients.
-    Note that this doesn't include the depot, also clients are numbered from 1 to n.
-
-    :return: Number of clients.
-    """
-    return self.__n
+    super().__init__(location)
+    self.capacity = capacity
+    self.demand = demand
 
   def get_capacity(self):
     """
@@ -63,7 +52,7 @@ class Cvrp(Instance):
 
     :return: Capacity of the truck.
     """
-    return self.__capacity
+    return self.capacity
 
   def get_all_demands(self):
     """
@@ -72,7 +61,7 @@ class Cvrp(Instance):
 
     :return: A list of demands of all clients.
     """
-    return self.__demand
+    return self.demand
 
   def get_demand(self, u: int):
     """
@@ -81,20 +70,7 @@ class Cvrp(Instance):
     :param u: Client to check.
     :return: The demand of client u.
     """
-    return self.__demand[u]
-
-  def cost(self, u: int, v: int):
-    """
-    Cost to travel from u to v.
-
-    :param u: Node from graph.
-    :param v: Node from graph.
-    :return: The cost to travel from u to v.
-    """
-    diff = lambda i: self.__location[u][i] - self.__location[v][i]
-    a = diff(0)
-    b = diff(1)
-    return int(sqrt(a * a + b * b) + 0.5)
+    return self.demand[u]
 
   @staticmethod
   def read(filename: str):

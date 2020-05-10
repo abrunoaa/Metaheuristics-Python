@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-from math import sqrt
 from typing import List, Tuple
 
 from combinatorial.instance import Instance
@@ -34,37 +33,7 @@ class Tsp(Instance):
     """
     assert len(location) >= 3, "Expected at least 3 nodes"
 
-    self.__n = len(location)
-    self.__location = location
-
-  def get_n(self):
-    """
-    Number of nodes in this instance.
-
-    :return: The number of nodes in this instance
-    """
-    return self.__n
-
-  def get_locations(self):
-    """
-    Return the 2D location of all nodes.
-
-    :return: Location of all nodes
-    """
-    return self.__location
-
-  def cost(self, u: int, v: int) -> int:
-    """
-    Cost to travel from u to v.
-
-    :param u: Node from graph
-    :param v: Node from graph
-    :return: The cost to travel from u to v
-    """
-    diff = lambda i: self.__location[u][i] - self.__location[v][i]
-    a = diff(0)
-    b = diff(1)
-    return int(sqrt(a * a + b * b) + 0.5)
+    super().__init__(location)
 
   @staticmethod
   def read(filename: str):
