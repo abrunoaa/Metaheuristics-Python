@@ -1,4 +1,4 @@
-#  simulated_annealing_tsp.py
+#  ga_cvrp.py
 #
 #  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
 #
@@ -17,13 +17,14 @@
 
 import sys
 
-from combinatorial.simulated_annealing import SimulatedAnnealing
-from combinatorial.tsp.tsp import Tsp
-from combinatorial.tsp.tsp_solution import TspSolution
+from combinatorial.cvrp.cvrp import Cvrp
+from combinatorial.cvrp.cvrp_chromosome import CvrpChromosome
+from combinatorial.genetic_algorithm import GeneticAlgorithm
 from run_tests import run
 
 if __name__ == "__main__":
-  instance = Tsp.read(sys.argv[1][2:])
+  instance = Cvrp.read(sys.argv[1][2:])
+  pop_size = 30
   repeat = 5
-  sa = SimulatedAnnealing.build(start_temperature=10, min_temperature=1, alpha=.999)
-  run(instance, TspSolution, repeat, sa)
+  ga = GeneticAlgorithm.build(iterations=100, crossover=.9, elitism=.9, mutation=.9)
+  run(instance, lambda x: [CvrpChromosome(x) for _ in range(pop_size)], repeat, ga)

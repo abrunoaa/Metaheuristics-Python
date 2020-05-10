@@ -1,4 +1,4 @@
-#  genetic_algorithm_cvrp.py
+#  ga_tsp.py
 #
 #  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
 #
@@ -17,15 +17,14 @@
 
 import sys
 
-from combinatorial.cvrp.cvrp import Cvrp
-from combinatorial.cvrp.cvrp_chromosome import CvrpChromosome
 from combinatorial.genetic_algorithm import GeneticAlgorithm
+from combinatorial.tsp.tsp import Tsp
+from combinatorial.tsp.tsp_chromosome import TspChromosome
 from run_tests import run
 
-
 if __name__ == "__main__":
-  instance = Cvrp.read(sys.argv[1][2:])
+  instance = Tsp.read(sys.argv[1][2:])
   pop_size = 30
   repeat = 5
   ga = GeneticAlgorithm.build(iterations=100, crossover=.9, elitism=.9, mutation=.9)
-  run(instance, lambda x: [CvrpChromosome(x) for _ in range(pop_size)], repeat, ga)
+  run(instance, lambda x: [TspChromosome(x) for _ in range(pop_size)], repeat, ga)
