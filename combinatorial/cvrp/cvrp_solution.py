@@ -18,6 +18,7 @@
 from collections import Callable
 from itertools import accumulate, chain
 from random import randrange, shuffle
+from typing import List, Tuple, Generator, Any
 
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.solution import Solution
@@ -30,7 +31,7 @@ class CvrpSolution(Solution):
   Class to represent a solution of CVRP.
   """
 
-  def __init__(self, cvrp: Cvrp, tour = None):
+  def __init__(self, cvrp: Cvrp, tour: List[int] = None):
     """
     Create a new solution for CVRP.
 
@@ -55,22 +56,25 @@ class CvrpSolution(Solution):
     return self.cvrp
 
   def get_fitness(self):
-    """
-    Cost value of this solution.
-
-    :return: Current cost.
-    """
     return self.fitness
 
   def get_solution(self):
     """
     Create a list of lists, representing the routes.
+
     The lists are sorted lexicographically to give a way to compare solutions.
+    Also, each route starts with the smallest node in the route.
 
     :return: A list of routes with the order of attendance.
     """
-    tour = self.tour
-    return sorted(tour[i: j + 1] if tour[i] < tour[j] else tour[i: j + 1][::-1] for i, j in self.__truck_ranges())
+    route = []
+    for i, j in self._truck_ranges():
+      k = self.tour.index(min(self.tour[i: j + 1]), i, j)
+      route.append(self.tour[k: j + 1] + self.tour[i: k + 1])
+      if route[-1][1] > route[-1][-1]:
+        route[-1][1:] = route[-1][: 0: -1]
+
+    return sorted(route)
 
   def neighbor(self):
     """
@@ -88,15 +92,16 @@ class CvrpSolution(Solution):
 
     :return: None
     """
-    self.__two_opt()
+    self._two_opt()
     self.validate()
 
   def _evaluate_fitness(self):
     """
     Given a TSP-like solution, calculates the optimal positions for splitting into trucks.
+
     Used for building fitness and truck list of current solution, given a valid tour.
 
-    This function calls validate.
+    This function calls validate at the end to ensure nothing wrong happened.
 
     :return: None
     """
@@ -134,23 +139,25 @@ class CvrpSolution(Solution):
     self.truck = self.truck[::-1]
     self.validate()
 
-  def __truck_ranges(self):
+  def _truck_ranges(self) -> Generator[Tuple[int, int], None, None]:
     """
     Build truck ranges for easy manipulation.
 
-    :return: A generator with pairs of starting and ending nodes position for each truck.
+    This way it's better since it avoid using a slow matrix.
+
+    :return: A generator with pairs of starting and ending (both inclusive) nodes position for each truck.
     """
     yield 0, self.truck[0]
     for i in range(1, len(self.truck)):
       yield self.truck[i - 1] + 1, self.truck[i]
 
-  def __two_opt(self):
+  def _two_opt(self):
     """
-    Execute two opt algorithm on current instance.
+    Execute 2-opt algorithm on current instance.
 
     :return: None.
     """
-    tour = [self.tour[i: j + 1] + [0] for i, j in self.__truck_ranges()]
+    tour = [self.tour[i: j + 1] + [0] for i, j in self._truck_ranges()]
     improve = CvrpSolution.two_opt(tour, self.cvrp.get_all_demands(), self.cvrp.get_capacity(), self.cvrp.cost)
 
     self.truck = [x - 1 for x in accumulate(len(t) - 1 for t in tour if len(t) > 1)]
@@ -162,7 +169,7 @@ class CvrpSolution(Solution):
     """
     Run 2-opt on CVRP solution.
 
-    :param tour: List with routes of Cvrp, each one ending with '0'.
+    :param tour: List with routes of CVRP, each one ending with '0'.
     :param demand: Demand of each client.
     :param capacity: Capacity of truck.
     :param cost: Function of two values u and v that calculates the cost for going from u to v.
@@ -173,6 +180,7 @@ class CvrpSolution(Solution):
 
     # exchange routes to be 2-opt
     while True:
+      # FIXME: try to simplify this code
       load = [sum(demand[u] for u in sub) for sub in tour]
       ntour = len(tour)
       best = 0
@@ -244,11 +252,6 @@ class CvrpSolution(Solution):
 
   # noinspection PyUnreachableCode
   def validate(self):
-    """
-    Abort if current state of solution is invalid.
-
-    :return: None.
-    """
     if __debug__:
       cvrp = self.cvrp
       tour = self.tour
@@ -267,9 +270,9 @@ class CvrpSolution(Solution):
       assert truck[-1] == n - 1, "Last truck must be the last node on tour"
 
       expected_fitness = sum(dist(0, tour[i]) + sum(dist(tour[k], tour[k + 1]) for k in range(i, j)) + dist(tour[j], 0)
-                             for i, j in self.__truck_ranges())
+                             for i, j in self._truck_ranges())
       assert expected_fitness == self.fitness, \
           "Invalid fitness for current tour: {} != {}".format(expected_fitness, self.fitness)
 
-      heaviest = max(sum(cvrp.get_demand(u) for u in tour[i: j + 1]) for i, j in self.__truck_ranges())
+      heaviest = max(sum(cvrp.get_demand(u) for u in tour[i: j + 1]) for i, j in self._truck_ranges())
       assert heaviest <= capacity, "Truck has load = {}, while capacity = {}".format(heaviest, capacity)

@@ -67,8 +67,6 @@ class Cvrp(Instance):
     :return: The cost to travel from u to v.
     """
     diff = lambda i: self.location[u][i] - self.location[v][i]
-    print(u, v, len(self.location), self.get_n())
-    print(self.location[u], self.location[v])
     a = diff(0)
     b = diff(1)
     return int(sqrt(a * a + b * b) + 0.5)
