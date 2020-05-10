@@ -72,6 +72,8 @@ class Solution(ABC):
     """
     Abort if current state of solution is invalid.
 
-    :return: None
+    Note that validations use assert, which must be enabled, otherwise nothing happens.
+
+    :return: None.
     """
     pass
