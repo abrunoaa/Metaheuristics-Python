@@ -46,7 +46,7 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
 
     :param args: A tuple with three values (see {@link build}): start_temperature, min_temperature and alpha.
     """
-    # TODO: change args to namedtuple
+    # TODO: change args to **kwargs
     assert len(args) == 3, "Expected three args"
     assert all(args[i] is not None for i in range(3)), "Found variable with None"
 

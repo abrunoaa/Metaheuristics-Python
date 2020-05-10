@@ -47,7 +47,7 @@ class GeneticAlgorithm(MetaheuristicPopulationBased):
 
     :param args: A tuple with four values (see {@link build}): iterations, crossover, elitism and mutation.
     """
-    # TODO: change args to namedtuple
+    # TODO: change args to **kwargs
     assert len(args) == 4, "Need exactly four args"
     assert 0 <= args[1] <= 1, "Crossover must be in range [0, 1]"
     assert 0 <= args[2] < 1, "Elitism must be in range [0, 1)"
@@ -85,4 +85,4 @@ class GeneticAlgorithm(MetaheuristicPopulationBased):
         population[i].local_search()
 
     population.sort(key=lambda x: x.get_fitness())
-    return population
+    return population[0]

@@ -23,13 +23,24 @@ class MetaheuristicSingleSolution(ABC):
   Class to define behavior of metaheuristics of single solution.
   """
 
+  @staticmethod
+  @abstractmethod
+  def build(*args):
+    """
+    Build one instance of current metaheuristic.
+
+    :param args: Arguments of metaheuristic
+    :return: New instance of metaheuristic
+    """
+    pass
+
   @abstractmethod
   def execute(self, initial_solution):
     """
     Execute current metaheuristic with the given initial solution.
 
-    :param initial_solution: An initial solution, which must be a single solution.
-    :return: The best found solution.
+    :param initial_solution: An initial solution, which must be a single solution
+    :return: The best found solution
     """
     pass
 
@@ -39,12 +50,25 @@ class MetaheuristicPopulationBased(ABC):
   Class to define behavior of metaheuristics of population based.
   """
 
+  @staticmethod
+  @abstractmethod
+  def build(*args):
+    """
+    Build an instance of current metaheuristic.
+
+    :param args: Arguments of metaheuristic
+    :return: New instance of metaheuristic
+    """
+    pass
+
   @abstractmethod
   def execute(self, initial_population):
     """
     Execute current metaheuristic with the given initial population.
 
-    :param initial_population: An initial solution, which must be a list of solutions.
-    :return: The final population sorted by fitness.
+    Note that the population will be changed by the algorithm, and at the end sorted by the best fitness.
+
+    :param initial_population: An initial solution, which must be a list of solutions
+    :return: The best solution found
     """
     pass
