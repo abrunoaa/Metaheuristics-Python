@@ -18,7 +18,7 @@
 from collections import Callable
 from itertools import accumulate, chain
 from random import randrange, shuffle
-from typing import List, Tuple, Generator, Any
+from typing import List, Tuple, Generator
 
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.solution import Solution
@@ -69,7 +69,7 @@ class CvrpSolution(Solution):
     """
     route = []
     for i, j in self._truck_ranges():
-      k = self.tour.index(min(self.tour[i: j + 1]), i, j)
+      k = self.tour.index(min(self.tour[i: j + 1]), i, j + 1)
       route.append(self.tour[k: j + 1] + self.tour[i: k + 1])
       if route[-1][1] > route[-1][-1]:
         route[-1][1:] = route[-1][: 0: -1]
