@@ -1,6 +1,6 @@
 #  ant_colony_optimization.py
 #
-#  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
+#  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -60,7 +60,8 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     n = instance.get_n()
 
     # TODO: raise this value to the power of beta instead of calculating inside ant, which may improve speed
-    quality = [[1.0 / instance.cost(u, v) if instance.cost(u, v) != 0 else 0 for v in range(n)] for u in range(n)]
+    cost = instance.cost
+    quality = [[1.0 / cost(u, v) if cost(u, v) != 0 else float('inf') for v in range(n)] for u in range(n)]
 
     population.sort(key=lambda x: x.get_fitness())
     best = population[0]

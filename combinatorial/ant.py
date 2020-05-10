@@ -1,6 +1,6 @@
 #  ant.py
 #
-#  Copyright (c) 2020 Bruno Almeda de Oliveira <abrunoaa@gmail.com>
+#  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
