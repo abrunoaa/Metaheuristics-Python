@@ -33,8 +33,8 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     return AntColonyOptimization((alpha, beta, rho, iterations, pheromone))
 
   @staticmethod
-  def default_pheromone(n):
-    return [[0.5] * n] * n
+  def default_pheromone(dimension):
+    return [[0.5] * dimension] * dimension
 
   def __init__(self, args):
     # TODO: change args to **kwargs
@@ -45,19 +45,18 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     self.__iterations = args[3]
     self.__pheromone = args[4]
 
-  def _update_pheromone(self, population):
+  def _update_pheromone(self, population: List[Ant]):
     n = len(self.__pheromone)
     delta = [[0] * n] * n
     for x in population:
-      for i in range(n):
-        delta[x.tour[i - 1]][x.tour[i]] += 1.0 / x.get_fitness()
+      x.update_delta(delta)
     for i in range(n):
       for j in range(n):
         self.__pheromone[i][j] = (1 - self.__rho) * self.__pheromone[i][j] + self.__rho * delta[i][j]
 
   def execute(self, population: List[Ant]):
     instance = population[0].get_instance()
-    n = instance.get_n()
+    n = len(self.__pheromone)
 
     # TODO: raise this value to the power of beta instead of calculating inside ant, which may improve speed
     cost = instance.cost

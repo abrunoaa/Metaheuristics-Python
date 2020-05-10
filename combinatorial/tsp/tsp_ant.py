@@ -28,6 +28,11 @@ class TspAnt(Ant, TspSolution):
   def __init__(self, tsp: Tsp, tour: List[int] = None):
     super().__init__(tsp, tour)
 
+  def update_delta(self, delta) -> None:
+    change = 1.0 / self.fitness
+    for i in range(len(self.tour)):
+      delta[self.tour[i - 1]][self.tour[i]] += change
+
   def travel(self, alpha, beta, pheromone, quality):
     n = len(quality)
     candidate = [u for u in range(1, n)]

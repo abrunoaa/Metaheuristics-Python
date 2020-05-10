@@ -26,7 +26,17 @@ class Ant(Solution):
   """
 
   @abstractmethod
-  def travel(self, alpha, beta, pheromone, quality):
+  def update_delta(self, delta) -> None:
+    """
+    Given an delta matrix, update it accordingly to current solution.
+
+    :param delta: Matrix to update values of change in pheromone
+    :return: None
+    """
+    pass
+
+  @abstractmethod
+  def travel(self, alpha, beta, pheromone, quality) -> None:
     """
     Create a new solution by traveling around the graph.
     The tour consider quality and pheromone while walking, and update delta accordingly.

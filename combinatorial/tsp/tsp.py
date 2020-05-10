@@ -15,6 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
+from math import sqrt
 from typing import List, Tuple
 
 from combinatorial.instance import Instance
@@ -51,8 +52,6 @@ class Tsp(Instance):
     :return: The cost to travel from u to v.
     """
     diff = lambda i: self.location[u][i] - self.location[v][i]
-    print(u, v, len(self.location), self.get_n())
-    print(self.location[u], self.location[v])
     a = diff(0)
     b = diff(1)
     return int(sqrt(a * a + b * b) + 0.5)
