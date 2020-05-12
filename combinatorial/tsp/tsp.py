@@ -26,13 +26,15 @@ class Tsp(Instance):
   Instance of TSP.
   """
 
+  MIN_NODES = 5
+
   def __init__(self, locations: List[Tuple[int, int]]):
     """
     Create an instance of TSP.
 
     :param locations: List of locations (x, y) of each node
     """
-    assert len(locations) >= 3, "Expected at least 3 nodes"
+    assert len(locations) >= Tsp.MIN_NODES, "Expected at least {} nodes".format(Tsp.MIN_NODES)
 
     self.n = len(locations)
     self.location = locations
