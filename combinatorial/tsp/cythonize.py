@@ -18,6 +18,11 @@
 from Cython.Build import cythonize
 from setuptools import Extension
 
+
+"""
+This file creates the C++ version tsp_optimal.cpp from tsp_optimal.pyx.
+"""
+
 extensions = Extension("tsp_optimal", ["tsp_optimal.pyx"],
                        language="c++", extra_compile_args=["-std=c++11"], extra_link_args=["-std=c++11"])
 
