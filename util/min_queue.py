@@ -19,13 +19,28 @@ from collections import deque
 
 
 class MinQueue:
+  """
+  Especial queue that returns the minimum value in it.
+  """
+
   def __init__(self):
     self.data = deque()
 
   def min(self):
+    """
+    :return: The minimum value in this queue
+    """
     return self.data[0][0]
 
   def push(self, x):
+    """
+    Add a value to this queue.
+
+    Due to the queue comparison, it's necessary to implement operator __le__.
+
+    :param x: Value to add to the queue
+    :return: None
+    """
     k = 1
     while len(self.data) > 0 and x <= self.data[-1][0]:
       k += self.data[-1][1]
@@ -33,6 +48,13 @@ class MinQueue:
     self.data.append([x, k])
 
   def pop(self):
+    """
+    Remove the element in the front of the queue.
+
+    Note that the element in the front of the queue doesn't necessarily is the minimum value.
+
+    :return: None
+    """
     if self.data[0][1] == 1:
       self.data.popleft()
     else:
