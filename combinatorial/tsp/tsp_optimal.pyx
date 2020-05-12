@@ -33,9 +33,6 @@ cpdef tsp_optimal(tsp):
   :return: The optimal value
   """
   cdef int n = tsp.get_n()
-  cdef int u
-  cdef int v
-  cdef int d
   cdef int tmp
 
   if n > maxn:

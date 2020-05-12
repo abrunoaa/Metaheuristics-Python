@@ -26,6 +26,9 @@ from combinatorial.tsp.tsp_solution import TspSolution
 from util.min_queue import MinQueue
 
 
+# TODO: import optimal algorithm to TSP if it's compiled
+
+
 class CvrpSolution(Solution):
   """
   Class to represent a solution of CVRP.
@@ -92,6 +95,8 @@ class CvrpSolution(Solution):
 
     :return: None
     """
+    # TODO: add optimal algorithm
+
     self._two_opt()
     self.validate()
 
