@@ -19,9 +19,7 @@ from distutils.core import setup, Extension
 
 
 """
-This file compiles tsp_optimal.cpp into a python library.
-
-Don't forget to cythonize before compiling the library.
+This file compiles tsp_optimal.cpp into a python library. Don't forget to cythonize before compiling the library.
 
 The library compilation was separated from cythonize to allow compilation from distinct python interpreters. 
 """

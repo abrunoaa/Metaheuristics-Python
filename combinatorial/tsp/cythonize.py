@@ -21,6 +21,8 @@ from setuptools import Extension
 
 """
 This file creates the C++ version tsp_optimal.cpp from tsp_optimal.pyx.
+
+Currently, compiles to C++11 with Python 3 version.
 """
 
 extensions = Extension("tsp_optimal", ["tsp_optimal.pyx"],
