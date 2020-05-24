@@ -54,7 +54,7 @@ class Instance(ABC):
 
   @staticmethod
   @abstractmethod
-  def read(filename):
+  def read(filename: str):
     """
     Read a instance from file.
 

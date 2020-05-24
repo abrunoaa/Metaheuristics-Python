@@ -98,13 +98,18 @@ class Cvrp(Instance):
     return self.demand[u]
 
   @staticmethod
-  def read(filename: str):
+  def read(filename):
     """
     Read an instance from a file.
+
     The file must have the following info (in any order):
+
     DIMENSION: [integer n representing the number of clients]
+
     CAPACITY: [integer c representing the capacity of truck]
+
     NODE_COORD_SECTION [followed by n+1 lines, each one with the the point] x y
+
     DEMAND_SECTION [followed by n+1 lines, each one with the demand] d
 
     :param filename: File to read from.

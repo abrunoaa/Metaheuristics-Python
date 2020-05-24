@@ -59,7 +59,7 @@ class Tsp(Instance):
     return int(sqrt(a * a + b * b) + 0.5)
 
   @staticmethod
-  def read(filename: str):
+  def read(filename):
     """
     Read the instance from filename.
 
