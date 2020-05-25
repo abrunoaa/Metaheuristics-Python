@@ -5,3 +5,6 @@
 *.pyc
 *.so
 *.o
+
+# ignore test script
+run.sh
