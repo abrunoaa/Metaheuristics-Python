@@ -64,12 +64,16 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
     best = initial_solution
     x = best
     temperature = self.__start_temperature
-    while temperature > self.__min_temperature:
-      y = x.neighbor()
-      y.local_search()
-      if y.get_fitness() < x.get_fitness() or uniform(0, 1) < exp((x.get_fitness() - y.get_fitness()) / temperature):
-        x = y
-        if x.get_fitness() < best.get_fitness():
-          best = x
-      temperature *= self.__alpha
+    try:
+      while temperature > self.__min_temperature:
+        y = x.neighbor()
+        y.local_search()
+        if y.get_fitness() < x.get_fitness() or uniform(0, 1) < exp((x.get_fitness() - y.get_fitness()) / temperature):
+          x = y
+          if x.get_fitness() < best.get_fitness():
+            best = x
+        temperature *= self.__alpha
+    except RuntimeError as error:
+      print(error)
+
     return best
