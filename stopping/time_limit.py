@@ -37,6 +37,9 @@ class TimeLimit(StoppingCriteria):
     self.start_time = time()
     self.max_seconds = max_seconds
 
+  def restart(self) -> None:
+    self.start_time = time()
+
   def finished(self):
     return (time() - self.start_time) >= self.max_seconds
 

@@ -29,16 +29,17 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
   """
 
   @staticmethod
-  def build(start_temperature, min_temperature, alpha):
+  def build(start_temperature, min_temperature, alpha, stop_condition):
     """
     Util function to build this class.
 
     :param start_temperature: The initial temperature of algorithm.
     :param min_temperature: The stopping temperature of algorithm.
     :param alpha: Cooling rate.
+    :param stop_condition: Condition to stop. Also, it'll stop when the temperature is bellow the minimum.
     :return: A tuple with the values to build this class.
     """
-    return SimulatedAnnealing((start_temperature, min_temperature, alpha))
+    return SimulatedAnnealing((start_temperature, min_temperature, alpha, stop_condition))
 
   def __init__(self, args):
     """
@@ -47,12 +48,13 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
     :param args: A tuple with three values (see {@link build}): start_temperature, min_temperature and alpha.
     """
     # TODO: change args to **kwargs
-    assert len(args) == 3, "Expected three args"
-    assert all(args[i] is not None for i in range(3)), "Found variable with None"
+    assert len(args) == 4, "Expected three args"
+    assert all(x is not None for x in args), "Found variable with None"
 
     self.__start_temperature = args[0]
     self.__min_temperature = args[1]
     self.__alpha = args[2]
+    self.__stop_condition = args[3]
 
   def execute(self, initial_solution: Solution):
     """
@@ -64,15 +66,19 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
     best = initial_solution
     x = best
     temperature = self.__start_temperature
+    self.__stop_condition.restart()
     try:
-      while temperature > self.__min_temperature:
+      while temperature > self.__min_temperature and not self.__stop_condition:
         y = x.neighbor()
         y.local_search()
+        improved = False
         if y.get_fitness() < x.get_fitness() or uniform(0, 1) < exp((x.get_fitness() - y.get_fitness()) / temperature):
           x = y
           if x.get_fitness() < best.get_fitness():
             best = x
+            improved = True
         temperature *= self.__alpha
+        self.__stop_condition.update(improved)
     except RuntimeError as error:
       print(error)
 

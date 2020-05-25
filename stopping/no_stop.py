@@ -25,6 +25,9 @@ class NoStop(StoppingCriteria):
   This is useful for algorithms like Simulated Annealing.
   """
 
+  def restart(self) -> None:
+    pass
+
   def finished(self):
     return False
 

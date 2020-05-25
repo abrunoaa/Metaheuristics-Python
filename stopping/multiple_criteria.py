@@ -30,6 +30,10 @@ class MultipleCriteria(StoppingCriteria):
     """
     self.criteria = criteria
 
+  def restart(self) -> None:
+    for c in self.criteria:
+      c.restart()
+
   def finished(self) -> bool:
     return all(c.finished() for c in self.criteria)
 
