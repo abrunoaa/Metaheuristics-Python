@@ -16,26 +16,19 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 import sys
-from multiprocessing.context import Process
 
 from combinatorial.crp.crp import Crp
 from combinatorial.crp.crp_solution import CrpSolution
 from combinatorial.simulated_annealing import SimulatedAnnealing
-from run_tests import run
+from run_tests import run_and_print
 from stopping.time_limit import TimeLimit
 
 if __name__ == "__main__":
-  # instance = Crp.read(sys.argv[1][2:])
-  instance = Crp.read('instances/CRP/Fischetti2017/wf02_cb02_capex.crp')
-  repeat = 1
+  instance = Crp.read(sys.argv[1][2:])
+  # instance = Crp.read('instances/CRP/Fischetti2017/wf02_cb02_capex.crp')
 
-  jobs = []
-  for i in range(6):
-    sa = SimulatedAnnealing.build(1000, 1, .999, TimeLimit(10))
-    process = Process(target=run, args=(instance, CrpSolution, 2, sa))
-    jobs.append(process)
+  tests = 20
+  cpus = 7
 
-  for job in jobs:
-    job.start()
-  for job in jobs:
-    job.join()
+  sa = SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(1))
+  run_and_print(instance, sa, CrpSolution, tests, cpus)

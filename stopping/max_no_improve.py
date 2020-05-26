@@ -30,7 +30,7 @@ class MaxNoImprove(StoppingCriteria):
     self.counter = 0
     self.max_no_improve = max_no_improve
 
-  def restart(self) -> None:
+  def start(self) -> None:
     self.counter = 0
 
   def finished(self):

@@ -32,7 +32,7 @@ class MultipleCriteria(StoppingCriteria):
 
   def restart(self) -> None:
     for c in self.criteria:
-      c.restart()
+      c.start()
 
   def finished(self) -> bool:
     return all(c.finished() for c in self.criteria)

@@ -27,9 +27,9 @@ class StoppingCriteria(ABC):
     return self.finished()
 
   @abstractmethod
-  def restart(self) -> None:
+  def start(self) -> None:
     """
-    Restart this criteria.
+    Start this criteria.
 
     :return: None.
     """

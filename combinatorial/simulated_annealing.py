@@ -66,8 +66,8 @@ class SimulatedAnnealing(MetaheuristicSingleSolution):
     best = initial_solution
     x = best
     temperature = self.__start_temperature
-    self.__stop_condition.restart()
     try:
+      self.__stop_condition.start()
       while temperature > self.__min_temperature and not self.__stop_condition:
         y = x.neighbor()
         y.local_search()

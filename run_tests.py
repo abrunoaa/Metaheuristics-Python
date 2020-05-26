@@ -14,41 +14,51 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
+from copy import deepcopy
+from multiprocessing import Pool
 from time import process_time as time
 
 
-def run(instance, solution_builder, number_of_tests, metaheuristic, bks=None):
+def _runner(instance, metaheuristic, solution_builder):
+  start = time()
+  ans = metaheuristic.execute(solution_builder(instance))
+  end = time()
+  elapsed = end - start
+  return ans, elapsed
+
+
+def run(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: int):
   """
   Run several tests on an instance with a specific metaheuristic.
 
   :param instance: Instance to test.
+  :param metaheuristic: Metaheuristic to execute.
   :param solution_builder: Creates a new solution. This must be callable and receive the instance as argument.
   :param number_of_tests: Number of times to repeat the test.
-  :param metaheuristic: Metaheuristic to execute.
-  :param bks: Best known solution. If it's present, then the results are checked to see if a new optimum is found.
-  :return: None
+  :param cpus: Number of processes to run in parallel. Limited by the number of cores of current CPUs.
+  :return: A tuple with the results with the time they spent.
   """
-  total_elapsed = 0
+  args = [(instance, deepcopy(metaheuristic), solution_builder) for _ in range(number_of_tests)]
+  results = Pool(cpus).starmap(_runner, args)
+
   avg_answer = 0
   best, worst = float("inf"), 0
-  print("elapsed;result;tour")
-
-  for test in range(number_of_tests):
-    start = time()
-    ans = metaheuristic.execute(solution_builder(instance))
-    end = time()
-    elapsed = end - start
-
-    if bks is not None and ans.get_fitness() < bks:
-      print("Better optimum found: ", end='')
-    print("{:.3f}s;{};{}".format(elapsed, ans.get_fitness(), ans.get_solution()))
-
-    total_elapsed += elapsed
+  for ans, elapsed in results:
     avg_answer += ans.get_fitness()
     best = min(best, ans.get_fitness())
     worst = max(worst, ans.get_fitness())
 
-  print("")
-  print("avg_elapsed;avg_result;best_result;worst_result")
-  print("{:.3f}s;{:.3f};{};{}".format(total_elapsed / number_of_tests, avg_answer / number_of_tests, best, worst))
+  return results, best, worst, avg_answer / len(results)
+
+
+def run_and_print(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: int):
+  results, best, worst, avg = run(instance, metaheuristic, solution_builder, number_of_tests, cpus)
+
+  print('elapsed;fitness;solution')
+  for ans, elapsed in results:
+    print('{:.3f};{:.3f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()))
+
+  print('')
+  print('avg;best;worst')
+  print('{:.3f};{:.3f};{:.3f}'.format(avg, best, worst))
