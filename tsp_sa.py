@@ -14,16 +14,20 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 import sys
 
 from combinatorial.simulated_annealing import SimulatedAnnealing
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_solution import TspSolution
-from run_tests import run
+from run_tests import run_and_print
+from stopping.time_limit import TimeLimit
 
 if __name__ == "__main__":
-  instance = Tsp.read(sys.argv[1][2:])
-  repeat = 5
-  sa = SimulatedAnnealing.build(start_temperature=10, min_temperature=1, alpha=.999)
-  run(instance, TspSolution, repeat, sa)
+  instance = Tsp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
+  sa = SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(2))
+  run_and_print(instance, sa, TspSolution, tests, cpus)

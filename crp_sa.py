@@ -24,7 +24,7 @@ from run_tests import run_and_print
 from stopping.time_limit import TimeLimit
 
 if __name__ == "__main__":
-  instance = Crp.read(sys.argv[1][2:])
+  instance = Crp.read(sys.argv[1])
   # instance = Crp.read('instances/crp/Fischetti2017/wf05_cb05_capex.crp')
 
   tests = 20

@@ -20,10 +20,14 @@ import sys
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_solution import CvrpSolution
 from combinatorial.simulated_annealing import SimulatedAnnealing
-from run_tests import run
+from run_tests import run_and_print
+from stopping.time_limit import TimeLimit
 
 if __name__ == "__main__":
-  instance = Cvrp.read(sys.argv[1][2:])
-  repeat = 5
-  sa = SimulatedAnnealing.build(start_temperature=10, min_temperature=1, alpha=.999)
-  run(instance, CvrpSolution, repeat, sa)
+  instance = Cvrp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
+  sa = SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(2))
+  run_and_print(instance, sa, CvrpSolution, tests, cpus)
