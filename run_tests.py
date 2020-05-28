@@ -18,9 +18,13 @@
 from copy import deepcopy
 from multiprocessing import Pool
 from time import process_time as time
+from typing import Callable
+
+from combinatorial.instance import Instance
+from combinatorial.metaheuristic import Metaheuristic
 
 
-def _runner(instance, metaheuristic, solution_builder):
+def _runner(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Callable):
   start = time()
   ans = metaheuristic.execute(solution_builder(instance))
   end = time()
@@ -28,7 +32,7 @@ def _runner(instance, metaheuristic, solution_builder):
   return ans, elapsed
 
 
-def run(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: int):
+def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Callable, number_of_tests: int, cpus: int):
   """
   Run several tests on an instance with a specific metaheuristic.
 
@@ -39,11 +43,16 @@ def run(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: i
   :param cpus: Number of processes to run in parallel. Limited by the number of cores of current CPUs.
   :return: A tuple with the results with the time they spent.
   """
+  if number_of_tests < 1:
+    raise ValueError("Invalid number of tests: {}".format(number_of_tests))
+  if cpus < 1:
+    raise ValueError("Invalid number of cpus: {}".format(cpus))
+
   args = [(instance, deepcopy(metaheuristic), solution_builder) for _ in range(number_of_tests)]
   results = Pool(cpus).starmap(_runner, args)
 
   avg_answer = 0
-  best, worst = float("inf"), 0
+  best, worst = float("inf"), 0.0
   for ans, elapsed in results:
     avg_answer += ans.get_fitness()
     best = min(best, ans.get_fitness())
@@ -52,13 +61,18 @@ def run(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: i
   return results, best, worst, avg_answer / len(results)
 
 
-def run_and_print(instance, metaheuristic, solution_builder, number_of_tests: int, cpus: int):
+def run_and_print(instance: Instance,
+                  metaheuristic: Metaheuristic,
+                  solution_builder: Callable,
+                  number_of_tests: int,
+                  cpus: int):
+
   results, best, worst, avg = run(instance, metaheuristic, solution_builder, number_of_tests, cpus)
 
   print('elapsed;fitness;solution')
   for ans, elapsed in results:
-    print('{:.3f};{:.3f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()))
+    print('{:.2f};{:.2f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()))
 
   print('')
   print('avg;best;worst')
-  print('{:.3f};{:.3f};{:.3f}'.format(avg, best, worst))
+  print('{:.2f};{:.2f};{:.2f}'.format(avg, best, worst))

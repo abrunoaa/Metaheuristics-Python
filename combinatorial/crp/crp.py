@@ -71,7 +71,7 @@ class Crp(Instance):
     diff = lambda i: self.turbines[u][i] - self.turbines[v][i]
     a = diff(0)
     b = diff(1)
-    return int(sqrt(a * a + b * b) + 0.5)
+    return sqrt(a * a + b * b)
 
   def choose_cable(self, energy):
     return next(i for i, capacity in enumerate(self.cable_capacity) if energy <= capacity)

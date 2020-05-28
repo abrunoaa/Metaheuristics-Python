@@ -14,13 +14,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+from abc import ABC, abstractmethod, ABCMeta
 
-from abc import ABC, abstractmethod
 
-
-class MetaheuristicSingleSolution(ABC):
+class Metaheuristic(ABC):
   """
-  Class to define behavior of metaheuristics of single solution.
+  Class to define behavior of metaheuristics.
   """
 
   @staticmethod
@@ -35,40 +35,26 @@ class MetaheuristicSingleSolution(ABC):
     pass
 
   @abstractmethod
-  def execute(self, initial_solution):
+  def execute(self, initial_values):
     """
     Execute current metaheuristic with the given initial solution.
 
-    :param initial_solution: An initial solution, which must be a single solution
+    :param initial_values: An initial solution, which must be a single solution
     :return: The best found solution
     """
     pass
 
 
-class MetaheuristicPopulationBased(ABC):
+# FIXME: Does we really need these separation?
+class MetaheuristicSingleSolution(Metaheuristic, metaclass=ABCMeta):
+  """
+  Class to define behavior of metaheuristics of single solution.
+  """
+  pass
+
+
+class MetaheuristicPopulationBased(Metaheuristic, metaclass=ABCMeta):
   """
   Class to define behavior of metaheuristics of population based.
   """
-
-  @staticmethod
-  @abstractmethod
-  def build(*args):
-    """
-    Build an instance of current metaheuristic.
-
-    :param args: Arguments of metaheuristic
-    :return: New instance of metaheuristic
-    """
-    pass
-
-  @abstractmethod
-  def execute(self, initial_population):
-    """
-    Execute current metaheuristic with the given initial population.
-
-    Note that the population will be changed by the algorithm, and at the end sorted by the best fitness.
-
-    :param initial_population: An initial solution, which must be a list of solutions
-    :return: The best solution found
-    """
-    pass
+  pass

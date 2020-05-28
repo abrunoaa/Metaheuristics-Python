@@ -25,10 +25,10 @@ from stopping.time_limit import TimeLimit
 
 if __name__ == "__main__":
   instance = Crp.read(sys.argv[1][2:])
-  # instance = Crp.read('instances/CRP/Fischetti2017/wf02_cb02_capex.crp')
+  # instance = Crp.read('instances/crp/Fischetti2017/wf05_cb05_capex.crp')
 
   tests = 20
   cpus = 7
 
-  sa = SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(1))
+  sa = SimulatedAnnealing.build(10, 1, .9999, TimeLimit(2 * 60 * 60))
   run_and_print(instance, sa, CrpSolution, tests, cpus)
