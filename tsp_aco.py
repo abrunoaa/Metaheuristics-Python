@@ -14,19 +14,28 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 import sys
 
 from combinatorial.ant_colony_optimization import AntColonyOptimization
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_ant import TspAnt
-from run_tests import run
+from run_tests import run_and_print
+from stopping.max_iterations import MaxIterations
+
+
+def ant_population_builder(x):
+  pop_size = 30
+  return [TspAnt(x) for _ in range(pop_size)]
+
 
 if __name__ == "__main__":
-  instance = Tsp.read(sys.argv[1][2:])
-  pop_size = 30
-  repeat = 5
+  instance = Tsp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
   n = instance.get_n()
-  pheromone = [[0.5] * n] * n
-  aco = AntColonyOptimization.build(iterations=10, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
-  run(instance, lambda x: [TspAnt(x) for _ in range(pop_size)], repeat, aco)
+  pheromone = AntColonyOptimization.default_pheromone(n)
+  aco = AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxIterations(2))
+  run_and_print(instance, aco, ant_population_builder, tests, cpus)

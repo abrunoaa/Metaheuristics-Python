@@ -29,8 +29,8 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
   """
 
   @staticmethod
-  def build(iterations, pheromone, alpha, beta, rho):
-    return AntColonyOptimization((alpha, beta, rho, iterations, pheromone))
+  def build(pheromone, alpha, beta, rho, stopping_condition):
+    return AntColonyOptimization((alpha, beta, rho, stopping_condition, pheromone))
 
   @staticmethod
   def default_pheromone(dimension):
@@ -42,7 +42,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     self.__alpha = args[0]
     self.__beta = args[1]
     self.__rho = args[2]
-    self.__iterations = args[3]
+    self.__stopping_condition = args[3]
     self.__pheromone = args[4]
 
   def _update_pheromone(self, population: List[Ant]):
@@ -64,15 +64,19 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
     population.sort(key=lambda x: x.get_fitness())
     best = population[0]
-    for iteration in range(self.__iterations):
+    self.__stopping_condition.start()
+    while not self.__stopping_condition:
       for ant in population:
         ant.travel(self.__alpha, self.__beta, self.__pheromone, quality)
         ant.local_search()
 
       population.sort(key=lambda x: x.get_fitness())
+      self._update_pheromone(population)
+
       if population[0].get_fitness() < best.get_fitness():
         best = copy(population[0])
-
-      self._update_pheromone(population)
+        self.__stopping_condition.update(True)
+      else:
+        self.__stopping_condition.update(False)
 
     return best

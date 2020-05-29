@@ -17,15 +17,25 @@
 #
 import sys
 
+from combinatorial.ant_colony_optimization import AntColonyOptimization
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_ant import CvrpAnt
-from combinatorial.ant_colony_optimization import AntColonyOptimization
-from run_tests import run
+from run_tests import run_and_print
+from stopping.max_iterations import MaxIterations
+
+
+def ant_population_builder(x):
+  pop_size = 30
+  return [CvrpAnt(x) for _ in range(pop_size)]
+
 
 if __name__ == "__main__":
-  instance = Cvrp.read(sys.argv[1][2:])
-  pop_size = 30
-  repeat = 5
-  pheromone = AntColonyOptimization.default_pheromone(instance.get_n() + 1)
-  ga = AntColonyOptimization.build(iterations=10, pheromone=pheromone, alpha=1, beta=10, rho=0.5)
-  run(instance, lambda x: [CvrpAnt(x) for _ in range(pop_size)], repeat, ga)
+  instance = Cvrp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
+  n = instance.get_n()
+  pheromone = AntColonyOptimization.default_pheromone(n + 1)
+  aco = AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxIterations(2))
+  run_and_print(instance, aco, ant_population_builder, tests, cpus)
