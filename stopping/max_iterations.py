@@ -30,7 +30,7 @@ class MaxIterations(StoppingCriteria):
     self.counter = 0
     self.max_iterations = max_iterations
 
-  def restart(self) -> None:
+  def start(self) -> None:
     self.counter = 0
 
   def finished(self):

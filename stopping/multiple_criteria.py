@@ -30,7 +30,7 @@ class MultipleCriteria(StoppingCriteria):
     """
     self.criteria = criteria
 
-  def restart(self) -> None:
+  def start(self) -> None:
     for c in self.criteria:
       c.start()
 
