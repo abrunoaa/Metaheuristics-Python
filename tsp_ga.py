@@ -14,17 +14,26 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 import sys
 
 from combinatorial.genetic_algorithm import GeneticAlgorithm
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_chromosome import TspChromosome
-from run_tests import run
+from run_tests import run_and_print
+from stopping.max_iterations import MaxIterations
+
+
+def population_builder(x):
+  pop_size = 30
+  return [TspChromosome(x) for _ in range(pop_size)]
+
 
 if __name__ == "__main__":
-  instance = Tsp.read(sys.argv[1][2:])
-  pop_size = 30
-  repeat = 5
-  ga = GeneticAlgorithm.build(iterations=100, crossover=.9, elitism=.9, mutation=.9)
-  run(instance, lambda x: [TspChromosome(x) for _ in range(pop_size)], repeat, ga)
+  instance = Tsp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
+  sa = GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxIterations(100))
+  run_and_print(instance, sa, population_builder, tests, cpus)

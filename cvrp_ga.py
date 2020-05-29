@@ -14,17 +14,26 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 import sys
 
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_chromosome import CvrpChromosome
 from combinatorial.genetic_algorithm import GeneticAlgorithm
-from run_tests import run
+from run_tests import run_and_print
+from stopping.max_iterations import MaxIterations
+
+
+def population_builder(x):
+  population_size = 25
+  return [CvrpChromosome(x) for _ in range(population_size)]
+
 
 if __name__ == "__main__":
-  instance = Cvrp.read(sys.argv[1][2:])
-  pop_size = 30
-  repeat = 5
-  ga = GeneticAlgorithm.build(iterations=100, crossover=.9, elitism=.9, mutation=.9)
-  run(instance, lambda x: [CvrpChromosome(x) for _ in range(pop_size)], repeat, ga)
+  instance = Cvrp.read(sys.argv[1])
+
+  tests = 20
+  cpus = 7
+
+  sa = GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxIterations(100))
+  run_and_print(instance, sa, population_builder, tests, cpus)
