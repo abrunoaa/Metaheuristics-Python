@@ -40,7 +40,7 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
   :param metaheuristic: Metaheuristic to execute.
   :param solution_builder: Creates a new solution. This must be callable and receive the instance as argument.
   :param number_of_tests: Number of times to repeat the test.
-  :param cpus: Number of processes to run in parallel. Limited by the number of cores of current CPUs.
+  :param cpus: Number of processes to run in parallel. Limited by the number of cores, but recommended to be 2.
   :return: A tuple with the results with the time they spent.
   """
   if number_of_tests < 1:
@@ -52,13 +52,15 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
   results = Pool(cpus).starmap(_runner, args)
 
   avg_answer = 0
+  avg_time = 0
   best, worst = float("inf"), 0.0
   for ans, elapsed in results:
     avg_answer += ans.get_fitness()
+    avg_time += elapsed
     best = min(best, ans.get_fitness())
     worst = max(worst, ans.get_fitness())
 
-  return results, best, worst, avg_answer / len(results)
+  return results, best, worst, avg_answer / len(results), avg_time / len(results)
 
 
 def run_and_print(instance: Instance,
@@ -67,12 +69,12 @@ def run_and_print(instance: Instance,
                   number_of_tests: int,
                   cpus: int):
 
-  results, best, worst, avg = run(instance, metaheuristic, solution_builder, number_of_tests, cpus)
+  results, best, worst, avg_ans, avg_time = run(instance, metaheuristic, solution_builder, number_of_tests, cpus)
 
   print('elapsed;fitness;solution')
   for ans, elapsed in results:
-    print('{:.2f};{:.2f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()))
+    print('{:.2f}s;{:.2f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()))
 
   print('')
-  print('avg;best;worst')
-  print('{:.2f};{:.2f};{:.2f}'.format(avg, best, worst))
+  print('avg_time;avg_ans;best;worst')
+  print('{:.2f}s;{:.2f};{:.2f};{:.2f}'.format(avg_time, avg_ans, best, worst))
