@@ -17,7 +17,7 @@
 #
 import sys
 
-from combinatorial.ant_colony_optimization import AntColonyOptimization
+from combinatorial.ant_colony import AntColonyOptimization
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_ant import TspAnt
 from run_tests import run_and_print

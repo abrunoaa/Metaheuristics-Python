@@ -1,4 +1,4 @@
-#  ant_colony_optimization.py
+#  ant_colony.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 from copy import copy
 from typing import List
 
@@ -22,7 +22,7 @@ from combinatorial.ant import Ant
 from combinatorial.metaheuristic import MetaheuristicPopulationBased
 
 
-# TODO: document this file when it's done
+# TODO: document this file
 class AntColonyOptimization(MetaheuristicPopulationBased):
   """
   Ant Colony Optimization implementation.
