@@ -1,6 +1,9 @@
 # ignore pycharm
 .idea/*
 
+# ignore continuous problems, as it's stopped now
+continuous/*
+
 # ignore executable files
 *.pyc
 *.so
