@@ -72,13 +72,10 @@ class CvrpSolution(Solution):
     """
     tour = []
     for i, j in self._truck_ranges():
-      k = self.tour.index(min(self.tour[i: j + 1]), i, j + 1)
-      route = self.tour[k: j + 1] + self.tour[i: k]
-      if len(route) > 1 and route[1] > route[-1]:
-        route[1:] = route[: 0: -1]
-
+      route = self.tour[i: j + 1]
+      if len(route) > 1 and route[0] > route[-1]:
+        route = route[:: -1]
       tour.append(route)
-
     return sorted(tour)
 
   def neighbor(self):
