@@ -15,10 +15,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-from stopping.stopping_criteria import StoppingCriteria
+from stopping.stopping_condition import StoppingCondition
 
 
-class NoStop(StoppingCriteria):
+class NoStop(StoppingCondition):
   """
   The algorithm must never stop.
 

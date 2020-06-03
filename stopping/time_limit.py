@@ -18,10 +18,10 @@
 from time import time
 from typing import Union
 
-from stopping.stopping_criteria import StoppingCriteria
+from stopping.stopping_condition import StoppingCondition
 
 
-class TimeLimit(StoppingCriteria):
+class TimeLimit(StoppingCondition):
   """
   Stop criteria with limit of executing time.
   """

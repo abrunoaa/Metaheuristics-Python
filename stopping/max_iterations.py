@@ -15,10 +15,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-from stopping.stopping_criteria import StoppingCriteria
+from stopping.stopping_condition import StoppingCondition
 
 
-class MaxIterations(StoppingCriteria):
+class MaxIterations(StoppingCondition):
   """
   Create a stop criteria with limit of iterations.
   """
