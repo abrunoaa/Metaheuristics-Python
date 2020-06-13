@@ -1,4 +1,4 @@
-#  max_iterations.py
+#  range_util.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
@@ -15,29 +15,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-from stopping.stopping_condition import StoppingCondition
 
 
-class MaxIterations(StoppingCondition):
-  """
-  Create a stop criteria with limit of iterations.
-  """
-
-  def __init__(self, max_iterations: int):
-    """
-    :param max_iterations: Maximum number of iterations.
-    """
-    self.counter = 0
-    self.max_iterations = max_iterations
-
-  def start(self) -> None:
-    self.counter = 0
-
-  def finished(self):
-    return self.counter >= self.max_iterations
-
-  def update(self, improved: bool):
-    self.counter += 1
-
-  def timing(self) -> float:
-    return self.counter / self.max_iterations
+def ensure_range(value, min_value=None, max_value=None):
+  if min_value is not None and value < min_value:
+    return min_value
+  if max_value is not None and value > max_value:
+    return max_value
+  return value

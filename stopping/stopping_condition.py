@@ -53,3 +53,14 @@ class StoppingCondition(ABC):
     :return: None.
     """
     pass
+
+  @abstractmethod
+  def timing(self) -> float:
+    """
+    Calculates a factor that indicates how close the algorithm is to ending in range [0, 1].
+
+    0 means the algorithm just started, while 1 means the algorithm is finished.
+
+    :return: The factor of how close is to ending.
+    """
+    pass

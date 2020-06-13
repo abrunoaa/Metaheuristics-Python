@@ -1,4 +1,4 @@
-#  roulette.py
+#  random_util.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
@@ -23,11 +23,11 @@ def roulette(values, s=None):
   """
   Select one index from values.
 
-  The probability to choose index k is proportional to values[k].
+  The probability to choose index k is proportional to values[k], i.e., values[k] / sum(values).
 
-  :param values: List with values corresponding to the probability to choose index k
-  :param s: Sum of values. This is util, for example, if the sum always equals to 1.
-  :return: An integer in range [0, len(values)), the chosen index
+  :param values: List with values corresponding to the probability to choose index k.
+  :param s: Sum of values. This may speed up the algorithm.
+  :return: An integer in range [0, len(values)), the chosen index.
   """
   if s is None:
     if isinstance(values, Generator):

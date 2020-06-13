@@ -22,12 +22,11 @@ from typing import List
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_solution import CvrpSolution
 from combinatorial.particle import Particle
-from util.roulette import roulette
+from util.random_util import roulette
 
 
-# TODO: add type hint
-# TODO: add docs
 class CvrpParticle(Particle, CvrpSolution):
+  # TODO: add docs
 
   def __init__(self, cvrp: Cvrp, tour: List[int] = None):
     super().__init__(cvrp, tour)
@@ -36,8 +35,10 @@ class CvrpParticle(Particle, CvrpSolution):
   # FIXME: currently works similarly to TSP
   def move(self, gbest: "CvrpParticle", w: float, c1: float, c2: float):
     # extract some range from best and gbest
-    best_size = randrange(int(c1 * self.cvrp.n))
-    gbest_size = randrange(int(c2 * self.cvrp.n))
+    best_size = min(int(c1 * self.cvrp.n), self.cvrp.n - 1)
+    best_size = 0 if best_size == 0 else randrange(best_size)
+    gbest_size = min(int(c2 * self.cvrp.n), self.cvrp.n - 1)
+    gbest_size = 0 if gbest_size == 0 else randrange(gbest_size)
 
     best_start = randrange(self.cvrp.n - best_size)
     gbest_start = randrange(self.cvrp.n - gbest_size)
@@ -46,20 +47,25 @@ class CvrpParticle(Particle, CvrpSolution):
     gbest_selected = set(gbest_range)
     best_range = [x for x in self.best.tour[best_start: best_start + best_size] if x not in gbest_selected]
 
+    # remaining nodes and random swap
     selected = gbest_selected.union(best_range)
     tour = [x for x in self.tour if x not in selected]
+    remaining = len(tour)
+    for _ in range(int(w * remaining)):
+      i = randrange(remaining)
+      j = randrange(remaining)
+      tour[i], tour[j] = tour[j], tour[i]
 
     def add_to_tour(range_to_add):
-      if range_to_add:
+      if not tour:
+        tour[0: 0] = range_to_add
+      elif range_to_add:
         cost_to_add = lambda u, v: self.cvrp.cost(u, range_to_add[0]) + self.cvrp.cost(range_to_add[-1], v)
         probability = [cost_to_add(0, tour[0])] + \
-                      [cost_to_add(tour[i - 1], tour[i]) for i in range(1, len(tour))] + \
+                      [cost_to_add(tour[k - 1], tour[k]) for k in range(1, len(tour))] + \
                       [cost_to_add(tour[-1], 0)]
 
-        s = sum(probability)
-        probability = [x / s for x in probability]
-
-        idx = roulette(probability, 1)
+        idx = roulette(probability)
         tour[idx: idx] = range_to_add
 
     add_to_tour(best_range)

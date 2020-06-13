@@ -18,14 +18,22 @@
 from copy import deepcopy
 
 from combinatorial.metaheuristic import MetaheuristicPopulationBased
+from util.range_util import ensure_range
 
 
-# TODO: add type hint
-# TODO: add docs
 class ParticleSwarm(MetaheuristicPopulationBased):
+  # TODO: add type hint
+  # TODO: add docs
 
   @staticmethod
   def build(w, c1, c2, stopping_condition):
+    """
+    :param w: Probability to move randomly.
+    :param c1: Probability to move towards particle's best.
+    :param c2: Probability to move towards global's best.
+    :param stopping_condition: Condition to stop the algorithm.
+    :return: An instance of Particle Swarm.
+    """
     return ParticleSwarm((w, c1, c2, stopping_condition))
 
   def __init__(self, args):
@@ -37,11 +45,20 @@ class ParticleSwarm(MetaheuristicPopulationBased):
   def execute(self, particles):
     gbest = min(particles, key=lambda particle: particle.get_fitness())
 
+    # FIXME: currently using variable args
+    # w = self.__w
+    # c1 = self.__c1
+    # c2 = self.__c2
     self.__stopping_condition.start()
     while not self.__stopping_condition:
+      t = self.__stopping_condition.timing()
+      w = 1 - t
+      c1 = .5 * t
+      c2 = .9 * t
+
       improved = False
       for p in particles:
-        p.move(gbest, self.__w, self.__c1, self.__c2)
+        p.move(gbest, w, c1, c2)
         p.local_search()
         if p.get_fitness() < gbest.get_fitness():
           gbest = deepcopy(p)

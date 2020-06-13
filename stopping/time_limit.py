@@ -45,3 +45,6 @@ class TimeLimit(StoppingCondition):
 
   def update(self, improved: bool):
     pass
+
+  def timing(self) -> float:
+    return (time() - self.start_time) / self.max_seconds

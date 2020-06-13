@@ -18,7 +18,7 @@
 from combinatorial.ant import Ant
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_solution import CvrpSolution
-from util.roulette import roulette
+from util.random_util import roulette
 
 
 class CvrpAnt(Ant, CvrpSolution):

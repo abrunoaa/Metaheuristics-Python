@@ -21,19 +21,20 @@ from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_particle import CvrpParticle
 from combinatorial.particle_swarm import ParticleSwarm
 from run_tests import run_and_print
-from stopping.max_iterations import MaxIterations
+from stopping.max_no_improve import MaxNoImprove
 
 
 def particle_population_builder(x):
-  pop_size = 30
+  pop_size = 20
   return [CvrpParticle(x) for _ in range(pop_size)]
 
 
 if __name__ == "__main__":
-  instance = Cvrp.read(sys.argv[1])
+  # instance = Cvrp.read(sys.argv[1])
+  instance = Cvrp.read('instances/cvrp/Vrp-Set-A/A\\A-n80-k10.vrp')
+  # instance = Cvrp.read('instances/cvrp/Vrp-Set-X/X\\X-n1001-k43.vrp')
 
-  tests = 20
-  cpus = 7
+  tests = 50
 
-  pso = ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxIterations(1))
-  run_and_print(instance, pso, particle_population_builder, tests, cpus)
+  pso = ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(100))
+  run_and_print(instance, pso, particle_population_builder, tests)

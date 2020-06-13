@@ -40,3 +40,6 @@ class MultipleCondition(StoppingCondition):
   def update(self, improved: bool) -> None:
     for c in self.conditions:
       c.update(improved)
+
+  def timing(self) -> float:
+    return sum(c.timing() for c in self.conditions) / len(self.conditions)

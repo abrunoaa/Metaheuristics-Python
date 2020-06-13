@@ -33,3 +33,6 @@ class NoStop(StoppingCondition):
 
   def update(self, improved: bool):
     pass
+
+  def timing(self) -> float:
+    return 0

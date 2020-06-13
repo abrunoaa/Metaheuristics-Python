@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 from collections import Callable
 from itertools import accumulate, chain
 from random import randrange, shuffle
@@ -24,9 +24,6 @@ from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.solution import Solution
 from combinatorial.tsp.tsp_solution import TspSolution
 from util.min_queue import MinQueue
-
-
-# TODO: import optimal algorithm to TSP if it's compiled
 
 
 class CvrpSolution(Solution):
@@ -94,10 +91,19 @@ class CvrpSolution(Solution):
 
     :return: None
     """
-    # TODO: add optimal algorithm
-
     self._two_opt()
     self.validate()
+
+    from combinatorial.tsp.tsp import Tsp, TspOptimizer
+    if TspOptimizer.AVAILABLE:
+      for i, j in self._truck_ranges():
+        if j - i + 1 > 2:
+          tsp = Tsp([self.cvrp.location[u] for u in self.tour[i: j + 1]])
+          cost, opt = TspOptimizer.get_instance(tsp.get_n()).optimize(tsp)
+          self.tour[i: j + 1] = [self.tour[i + k] for k in opt]
+
+      self._evaluate_fitness()
+      self.validate()
 
   def _evaluate_fitness(self):
     """
@@ -275,8 +281,7 @@ class CvrpSolution(Solution):
 
       expected_fitness = sum(dist(0, tour[i]) + sum(dist(tour[k], tour[k + 1]) for k in range(i, j)) + dist(tour[j], 0)
                              for i, j in self._truck_ranges())
-      assert expected_fitness == self.fitness, \
-          "Invalid fitness for current tour: {} != {}".format(expected_fitness, self.fitness)
+      assert expected_fitness == self.fitness, "Wrong fitness {}, expected {}".format(self.fitness, expected_fitness)
 
       heaviest = max(sum(cvrp.get_demand(u) for u in tour[i: j + 1]) for i, j in self._truck_ranges())
       assert heaviest <= capacity, "Truck has load = {}, while capacity = {}".format(heaviest, capacity)

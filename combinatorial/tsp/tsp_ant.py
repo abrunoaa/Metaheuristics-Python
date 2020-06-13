@@ -20,7 +20,7 @@ from typing import List
 from combinatorial.ant import Ant
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_solution import TspSolution
-from util.roulette import roulette
+from util.random_util import roulette
 
 
 class TspAnt(Ant, TspSolution):
