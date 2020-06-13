@@ -53,7 +53,7 @@ SOLUTION_TYPES = {
 }
 
 
-def extract_param(params):
+def extract_parameters(params):
   parameters = {}
   for var in params.split(','):
     p = var.split('=')
@@ -107,7 +107,7 @@ def parse_args():
   parser.add_argument("problem", type=str.upper, help="problem to solve", choices=['CRP', 'CVRP', 'TSP'])
   parser.add_argument("algorithm", type=str.upper, help="algorithm to use", choices=['ACO', 'GA', 'PSO', 'SA'])
   # FIXME: the parameters are ignored
-  parser.add_argument("-p", "--params", type=extract_param, help="parameters for the algorithm (ignored!)")
+  parser.add_argument("-p", "--params", type=extract_parameters, help="parameters for the algorithm (ignored!)")
   # FIXME: the algorithms currently reads from stdin
   parser.add_argument("-i", "--input", type=FileType('r'), default=sys.stdin, help="file to read instance")
   # FIXME: the output file is ignored
