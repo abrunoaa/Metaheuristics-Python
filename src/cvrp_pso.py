@@ -1,4 +1,4 @@
-#  pso_test.py
+#  cvrp_pso.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
@@ -14,21 +14,27 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
+import sys
 
-from continuous.pso import pso
-from continuous.run_tests import run
-from continuous.functions import *
-
-
-def call(function, interval):
-  w = .5
-  c1 = .666
-  c2 = .333
-  n_particles = 25
-  return pso(function, interval, w, c1, c2, n_particles, 1000)
+from combinatorial.cvrp.cvrp import Cvrp
+from combinatorial.cvrp.cvrp_particle import CvrpParticle
+from combinatorial.particle_swarm import ParticleSwarm
+from run_tests import run_and_print
+from stopping.max_no_improve import MaxNoImprove
 
 
-# debugging
+def particle_population_builder(x):
+  pop_size = 20
+  return [CvrpParticle(x) for _ in range(pop_size)]
+
+
 if __name__ == "__main__":
-  f = easom
-  run(100, call, f[1], f[0])
+  # instance = Cvrp.read(sys.argv[1])
+  instance = Cvrp.read('../instances/cvrp/Vrp-Set-A/A\\A-n80-k10.vrp')
+  # instance = Cvrp.read('../instances/cvrp/Vrp-Set-X/X\\X-n1001-k43.vrp')
+
+  tests = 5
+
+  pso = ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(10))
+  run_and_print(instance, pso, particle_population_builder, tests)

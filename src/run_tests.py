@@ -54,7 +54,7 @@ def run_and_print(instance: Instance,
 
   print('elapsed;fitness;solution')
   for ans, elapsed in run(instance, metaheuristic, solution_builder, number_of_tests):
-    print('{:.2f}s;{:.2f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()), flush=True)
+    print('{:.2f}s;{};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()), flush=True)
 
     best = min(best, ans.get_fitness())
     worst = max(worst, ans.get_fitness())
@@ -65,4 +65,4 @@ def run_and_print(instance: Instance,
 
   print('')
   print('avg_time;avg_ans;best;worst')
-  print('{:.2f}s;{:.2f};{:.2f};{:.2f}'.format(avg_time, avg_answer, best, worst), flush=True)
+  print('{:.2f}s;{:.2f};{};{}'.format(avg_time, avg_answer, best, worst), flush=True)
