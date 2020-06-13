@@ -64,15 +64,14 @@ class Tsp(Instance):
     return int(sqrt(a * a + b * b) + 0.5)
 
   @staticmethod
-  def read(filename):
+  def read(reader):
     """
-    Read the instance from filename.
+    Read the instance from reader.
 
-    :param filename: File to read instance
-    :return: A TSP instance
+    :param reader: Stream to read from.
+    :return: A TSP instance.
     """
-    with open(filename) as file:
-      content = [x.strip().split() for x in file.readlines()]
+    content = [x.strip().split() for x in reader.readlines()]
 
     c = content.index(["NODE_COORD_SECTION"])
     assert c is not None, "Missing NODE_COORD_SECTION"
@@ -108,7 +107,7 @@ class TspOptimizer:
     if not TspOptimizer.AVAILABLE:
       raise NotImplementedError("Can't use method without Gurobi installed")
     if not TspOptimizer.MIN_OPTIMIZER_NODES <= n <= TspOptimizer.MAX_OPTIMIZER_NODES:
-      raise ValueError("Number of nodes {} is out of range [{}, {}]"
+      raise ValueError("Number of nodes {} is in of range [{}, {}]"
                        .format(n, TspOptimizer.MIN_OPTIMIZER_NODES, TspOptimizer.MAX_OPTIMIZER_NODES))
 
     self.n = n

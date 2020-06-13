@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-from copy import copy
+from copy import deepcopy
 from typing import List
 
 from combinatorial.ant import Ant
@@ -63,7 +63,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     quality = [[1.0 / cost(u, v) if cost(u, v) != 0 else float('inf') for v in range(n)] for u in range(n)]
 
     population.sort(key=lambda x: x.get_fitness())
-    best = population[0]
+    best = deepcopy(population[0])
     self.__stopping_condition.start()
     while not self.__stopping_condition:
       for ant in population:
@@ -74,7 +74,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
       self._update_pheromone(population)
 
       if population[0].get_fitness() < best.get_fitness():
-        best = copy(population[0])
+        best = deepcopy(population[0])
         self.__stopping_condition.update(True)
       else:
         self.__stopping_condition.update(False)

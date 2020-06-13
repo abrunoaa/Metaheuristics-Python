@@ -81,11 +81,11 @@ class Crp(Instance):
     return self.cable_cost[self.choose_cable(energy)]
 
   @staticmethod
-  def read(filename):
+  def read(reader):
     """
-    Read an instance from a file.
+    Read an instance from a reader.
 
-    The file must have the following info (square brackets are just comments):
+    The reader must have the following info (square brackets are just comments):
 
     [number of turbines] n [number of cables] t [max connections to substation] c
 
@@ -95,11 +95,10 @@ class Crp(Instance):
 
     [t lines with cables info] [supported turbines] k [cost] u
 
-    :param filename: File to read from.
-    :return: An instance with data from file.
+    :param reader: Stream to read from.
+    :return: A CRP instance.
     """
-    with open(filename) as file:
-      content = [x.strip().split() for x in file.readlines()]
+    content = [x.strip().split() for x in reader.readlines()]
 
     n, t, c = map(int, content[0])
     substation = tuple(map(int, content[1]))

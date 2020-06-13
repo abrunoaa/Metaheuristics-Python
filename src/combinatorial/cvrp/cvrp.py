@@ -98,11 +98,11 @@ class Cvrp(Instance):
     return self.demand[u]
 
   @staticmethod
-  def read(filename):
+  def read(reader):
     """
-    Read an instance from a file.
+    Read an instance from a reader.
 
-    The file must have the following info (in any order):
+    The reader must have the following info (in any order):
 
     DIMENSION: [integer n representing the number of clients]
 
@@ -112,11 +112,10 @@ class Cvrp(Instance):
 
     DEMAND_SECTION [followed by n+1 lines, each one with the demand] d
 
-    :param filename: File to read from.
-    :return: An instance with data from file.
+    :param reader: Stream to read from.
+    :return: A CVRP instance.
     """
-    with open(filename) as file:
-      content = [x.strip().split() for x in file.readlines()]
+    content = [x.strip().split() for x in reader.readlines()]
 
     c = content.index(["NODE_COORD_SECTION"])
     d = content.index(["DEMAND_SECTION"])

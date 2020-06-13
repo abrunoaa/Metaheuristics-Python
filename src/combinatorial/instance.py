@@ -54,11 +54,11 @@ class Instance(ABC):
 
   @staticmethod
   @abstractmethod
-  def read(filename: str):
+  def read(reader):
     """
-    Read a instance from file.
+    Read a instance from reader.
 
-    :param filename: File to read.
-    :return: The instance read from file.
+    :param reader: Stream to read from.
+    :return: The instance read from reader.
     """
     pass
