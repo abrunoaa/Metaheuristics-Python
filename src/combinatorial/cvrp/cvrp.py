@@ -40,6 +40,7 @@ class Cvrp(Instance):
     assert n >= 2, "Need at least 2 clients: {} < 2".format(n)
     assert capacity > 0, "Invalid capacity: {}".format(capacity)
     assert len(locations) == n + 1, "Expected {} locations".format(n + 1)
+    assert all(len(x) == 2 for x in locations), "Each location must have exactly two coordinates"
     assert len(demand) == n + 1, "Expected {} demands".format(n + 1)
     assert demand[0] == 0, "Depot (node 0) must have demand = 0, but was {}".format(demand[0])
     assert min(demand[1:]) > 0, "Invalid demand: {}".format(min(demand))
@@ -117,15 +118,9 @@ class Cvrp(Instance):
     """
     content = [x.strip().split() for x in reader.readlines()]
 
-    c = content.index(["NODE_COORD_SECTION"])
-    d = content.index(["DEMAND_SECTION"])
+    n, c = map(int, content[0])
+    demand = list(map(int, content[1]))
+    locations = list(tuple(map(int, x)) for x in content[2:])
 
-    assert c is not None, "Missing NODE_COORD_SECTION"
-    assert d is not None, "Missing DEMAND_SECTION"
-
-    number_of_clients = next(int(x[-1]) - 1 for x in content if x[0].startswith("DIMENSION"))
-    capacity = next(int(x[-1]) for x in content if x[0].startswith("CAPACITY"))
-    demand = [int(x[1]) for x in content[d + 1: d + number_of_clients + 2]]
-    locations = [(int(x[1]), int(x[2])) for x in content[c + 1: c + number_of_clients + 2]]
-
-    return Cvrp(number_of_clients, capacity, demand, locations)
+    # noinspection PyTypeChecker
+    return Cvrp(n - 1, c, demand, locations)

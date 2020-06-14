@@ -1,14 +1,10 @@
 # ignore pycharm
 .idea/*
 
-# ignore continuous problems, as it's stopped now
-continuous/*
-
 # ignore executable files
 *.pyc
 *.so
 *.o
 
-# ignore test script
-# run.sh
-*.sh
+# WIP
+*neighborhood.py

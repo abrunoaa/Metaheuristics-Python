@@ -90,15 +90,13 @@ def build_algorithm(algorithm, n):
   raise ArgumentTypeError("invalid algorithm: {}".format(algorithm))
 
 
-def build_solution_builder(algorithm, problem):
+def build_solution_builder(algorithm: str, problem: str, pop_size: int):
   if SOLUTION_TYPES[algorithm, problem] is None:
     raise NotImplementedError("{} wasn't implemented with {}".format(problem, algorithm))
 
   if algorithm in SINGLE_SOLUTION:
     return SOLUTION_TYPES[algorithm, problem]
 
-  # FIXME: currently doesn't read pop_size from command line
-  pop_size = 20
   return lambda inst: [SOLUTION_TYPES[algorithm, problem](inst) for _ in range(pop_size)]
 
 
@@ -106,26 +104,31 @@ def parse_args():
   parser = ArgumentParser()
   parser.add_argument("problem", type=str.upper, help="problem to solve", choices=['CRP', 'CVRP', 'TSP'])
   parser.add_argument("algorithm", type=str.upper, help="algorithm to use", choices=['ACO', 'GA', 'PSO', 'SA'])
+
   # FIXME: the parameters are ignored
   parser.add_argument("-p", "--params", type=extract_parameters, help="parameters for the algorithm (ignored!)")
-  # FIXME: the algorithms currently reads from stdin
+  parser.add_argument("-s", "--size", type=int, help="population size")
+
   parser.add_argument("-i", "--input", type=FileType('r'), default=sys.stdin, help="file to read instance")
   # FIXME: the output file is ignored
   parser.add_argument("-o", "--output", type=FileType('w'), default=sys.stdout, help="file to write results")
+
   parser.add_argument("-r", "--repeat", type=int, help="number of times to execute")
 
   args = parser.parse_args()
 
   if args.repeat is None:
     args.repeat = 1
+  if args.size is None:
+    args.size = 25
 
   instance = read_instance(args.input, args.problem)
   n = instance.get_n() + 1 if args.problem == 'CVRP' else instance.get_n()
 
   mh = build_algorithm(args.algorithm, n)
-  solution_builder = build_solution_builder(args.algorithm, args.problem)
+  solution_builder = build_solution_builder(args.algorithm, args.problem, args.size)
 
-  return instance, mh, solution_builder, args.repeat
+  return instance, mh, solution_builder, args.repeat, args.output
 
 
 def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Callable, number_of_tests: int):
@@ -140,7 +143,6 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
   """
   if number_of_tests < 1:
     raise ValueError("Invalid number of tests: {}".format(number_of_tests))
-
   for mh in (deepcopy(metaheuristic) for _ in range(number_of_tests)):
     start = time()
     ans = mh.execute(solution_builder(instance))
@@ -149,17 +151,16 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
     yield ans, elapsed
 
 
-def run_and_print(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Callable, number_of_tests: int):
+def run_and_print(instance, metaheuristic, solution_builder, number_of_tests, output):
   avg_answer = 0
   avg_time = 0
   best, worst = float("inf"), float("-inf")
 
-  print('elapsed;fitness;solution')
+  output.write('elapsed;fitness;solution\n')
   for ans, elapsed in run(instance, metaheuristic, solution_builder, number_of_tests):
-    if isinstance(ans.get_fitness(), int):
-      print('{:.2f}s;{};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()), flush=True)
-    else:
-      print('{:.2f}s;{:.2f};{}'.format(elapsed, ans.get_fitness(), ans.get_solution()), flush=True)
+    fitness = ans.get_fitness() if isinstance(ans.get_fitness(), int) else round(ans.get_fitness(), 2)
+    output.write('{:.2f}s;{};{}\n'.format(elapsed, fitness, ans.get_solution()))
+    output.flush()
 
     best = min(best, ans.get_fitness())
     worst = max(worst, ans.get_fitness())
@@ -168,12 +169,17 @@ def run_and_print(instance: Instance, metaheuristic: Metaheuristic, solution_bui
   avg_time /= number_of_tests
   avg_answer /= number_of_tests
 
-  print('')
-  print('avg_time;avg_ans;best;worst')
   if isinstance(best, int):
-    print('{:.2f}s;{:.2f};{};{}'.format(avg_time, avg_answer, best, worst), flush=True)
-  else:
-    print('{:.2f}s;{:.2f};{:.2f};{:.2f}'.format(avg_time, avg_answer, best, worst), flush=True)
+    best = round(best, 2)
+    worst = round(worst, 2)
+
+  output.write('\n')
+  output.write('avg_time;avg_ans;best;worst\n')
+  output.write('{:.2f}s;{:.2f};{};{}\n'.format(avg_time, avg_answer, best, worst))
+  output.flush()
+
+  if output != sys.stdout:
+    output.close()
 
 
 if __name__ == '__main__':
