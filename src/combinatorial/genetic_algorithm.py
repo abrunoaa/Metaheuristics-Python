@@ -70,16 +70,18 @@ class GeneticAlgorithm(MetaheuristicPopulationBased):
     assert int(len(population) * self.__elitism) < len(population), "All solutions are elite and won't change"
 
     population.sort(key=lambda x: x.get_fitness())
-    elitism = int(self.__elitism * len(population))
+    elitism = max(1, int(self.__elitism * len(population)))
 
     self.__stopping_condition.start()
     while not self.__stopping_condition:
       best = population[0].get_fitness()
       worst = population[-1].get_fitness()
+      # FIXME: consider only elites to mate with
       probability = list(accumulate(worst - population[i].get_fitness() + 1 for i in range(len(population))))
 
       for i in range(elitism, len(population)):
         if random() < self.__crossover:
+          # TODO: maybe this can be replaced by roulette
           k = bisect_left(probability, uniform(0, probability[-1]))
           assert k != len(probability), "Impossible selection occurred!"
           if k == i:

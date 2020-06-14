@@ -68,6 +68,11 @@ class TspSolution(Solution):
     """
     return self.tour if self.tour[0] < self.tour[-2] else self.tour[-2::-1] + [0]
 
+  @staticmethod
+  def grasp(instance: Tsp, alpha: float, seed: int = None):
+    # FIXME: implement GRASP algorithm
+    raise NotImplementedError("GRASP algorithm wasn't implemented for TSP")
+
   def neighbor(self):
     """
     Search for another solution closer to current one.

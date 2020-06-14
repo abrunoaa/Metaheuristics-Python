@@ -14,7 +14,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+#
 from abc import ABC, abstractmethod
 
 from combinatorial.instance import Instance
@@ -26,7 +26,7 @@ class Solution(ABC):
   """
 
   def __str__(self):
-    return str(self.get_fitness()) + " " + str(self.get_solution())
+    return "Solution({}: {})".format(self.get_fitness(), self.get_solution())
 
   @abstractmethod
   def get_instance(self) -> Instance:
@@ -46,6 +46,16 @@ class Solution(ABC):
   def get_solution(self):
     """
     :return: Current tour.
+    """
+    pass
+
+  @staticmethod
+  @abstractmethod
+  def grasp(instance: Instance, alpha: float, seed = None):
+    """
+    Run GRASP algorithm to build a solution.
+
+    :return: A new solution.
     """
     pass
 

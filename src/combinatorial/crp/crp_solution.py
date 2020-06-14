@@ -22,6 +22,7 @@ from random import uniform
 from typing import List
 
 from combinatorial.crp.crp import Crp
+from combinatorial.instance import Instance
 from combinatorial.solution import Solution
 from util.segment import intersect
 
@@ -48,6 +49,11 @@ class CrpSolution(Solution):
 
   def get_solution(self):
     return self.tree
+
+  @staticmethod
+  def grasp(instance: Instance, alpha: float, seed=None):
+    # FIXME: implement GRASP algorithm for CRP
+    raise NotImplementedError("GRASP wasn't implemented for CRP")
 
   def _isvalid(self, u: int, v: int):
     """

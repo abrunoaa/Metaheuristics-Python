@@ -17,13 +17,14 @@
 #
 from collections import Callable
 from itertools import accumulate, chain
-from random import randrange, shuffle
+from random import randrange, random
 from typing import List, Tuple, Generator
 
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.solution import Solution
 from combinatorial.tsp.tsp_solution import TspSolution
 from util.min_queue import MinQueue
+from util.random_util import roulette
 
 
 class CvrpSolution(Solution):
@@ -39,8 +40,7 @@ class CvrpSolution(Solution):
     :param tour: Starting tour to work with. All nodes must be in range [1, n].
     """
     if tour is None:
-      tour = [i for i in range(1, cvrp.get_n() + 1)]
-      shuffle(tour)
+      tour = CvrpSolution.grasp(cvrp, random(), randrange(cvrp.get_n()))
 
     assert min(tour) >= 1, "Invalid node: {} < 1".format(min(tour))
     assert max(tour) <= cvrp.get_n(), "Invalid node: {} > {}".format(max(tour), cvrp.get_n())
@@ -74,6 +74,44 @@ class CvrpSolution(Solution):
         route = route[:: -1]
       tour.append(route)
     return sorted(tour)
+
+  @staticmethod
+  def grasp(instance: Cvrp, alpha: float, seed: int = None):
+    n = instance.get_n()
+    if seed is None:
+      seed = randrange(n) + 1
+    assert 1 <= seed <= n, "Invalid seed {} not in range [{}, {}]".format(seed, 1, n)
+
+    tour = [seed]
+    cl = set(range(1, n + 1))
+    cl.remove(seed)
+    free = instance.get_capacity()
+    while cl:
+      lst = [(v, instance.cost(tour[-1], v)) for v in cl if free - instance.get_demand(v) >= 0]
+      if not lst:
+        free = instance.get_capacity()
+        lst = [(v, instance.cost(0, v)) for v in cl]
+        assert lst
+
+      mn = min(x[1] for x in lst)
+      mx = max(x[1] for x in lst)
+
+      cut = mn + alpha * (mx - mn)
+      candidates = [(v, cost) for v, cost in lst if cost <= cut]
+      assert candidates
+      k = 0 if len(candidates) == 1 else roulette(x[1] for x in candidates)
+
+      v = candidates[k][0]
+      assert all(isinstance(x[0], int) for x in candidates)
+      assert isinstance(v, int)
+      tour.append(v)
+      free -= instance.get_demand(v)
+      cl.remove(v)
+
+      assert len(tour) + len(cl) == n
+
+    assert len(tour) == n
+    return tour
 
   def neighbor(self):
     """

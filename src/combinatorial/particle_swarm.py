@@ -53,8 +53,8 @@ class ParticleSwarm(MetaheuristicPopulationBased):
     while not self.__stopping_condition:
       t = self.__stopping_condition.timing()
       w = 1 - t
-      c1 = .5 * t
-      c2 = .9 * t
+      c1 = .3 * t
+      c2 = .5 * t
 
       improved = False
       for p in particles:

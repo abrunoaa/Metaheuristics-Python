@@ -2,9 +2,9 @@
 
 output_base_path='../results'
 
-for file in $(find ../instances/ -name '*.crp' -name '*.cvrp' -name '*.tsp'); do
+#for file in $(find ../instances/ -name '*.crp' -name '*.cvrp' -name '*.tsp'); do
 #for file in $(find ../instances/ -name '*A-n32-k5.cvrp'); do
-#for file in $(find ../instances/ -name '*A-n80-k10.cvrp'); do
+for file in $(find ../instances/ -name '*A-n80-k10.cvrp'); do
 #for file in $(find ../instances/ -name '*X-n1001-k43.cvrp'); do
 #for file in $(find ../instances/ -name '*berlin52.tsp'); do
   echo Processing "$file"
@@ -28,7 +28,7 @@ for file in $(find ../instances/ -name '*.crp' -name '*.cvrp' -name '*.tsp'); do
   elif [ "$instance" = "cvrp" ]; then
 #    sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py CVRP ACO -i "$file" -o "$out_path/aco/$output_file"
 #    sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py CVRP GA  -i "$file" -o "$out_path/ga/$output_file"
-    sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py CVRP PSO -i "$file" -o "$out_path/pso/$output_file" -r 100
+    sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py CVRP PSO -i "$file" -r 10 #-o "$out_path/pso/$output_file"
 #    sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py CVRP SA  -i "$file" -o "$out_path/sa/$output_file"
   elif [ "$instance" = "tsp" ]; then
     sudo nice -n -20 sudo -u brunoalmeda pypy3 -O run.py TSP ACO -i "$file" -o "$out_path/aco/$output_file"

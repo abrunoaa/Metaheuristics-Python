@@ -18,6 +18,7 @@
 import sys
 from argparse import ArgumentParser, FileType, ArgumentTypeError
 from copy import deepcopy
+from random import randrange
 from time import process_time as time
 from typing import Callable
 
@@ -38,15 +39,19 @@ from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_ant import TspAnt
 from combinatorial.tsp.tsp_chromosome import TspChromosome
 from combinatorial.tsp.tsp_solution import TspSolution
+from stopping.max_iterations import MaxIterations
 from stopping.max_no_improve import MaxNoImprove
 from stopping.time_limit import TimeLimit
 
+
+DEFAULT_REPEAT = 1
+DEFAULT_POP_SIZE = 25
 
 INSTANCE_TYPES = {'CRP': Crp, 'CVRP': Cvrp, 'TSP': Tsp}
 
 SINGLE_SOLUTION = {'SA'}
 
-SOLUTION_TYPES = {
+ARGS_BUILDER = {
   ('ACO', 'CRP'): None, ('ACO', 'CVRP'): CvrpAnt, ('ACO', 'TSP'): TspAnt,
   ('SA', 'CRP'): CrpSolution, ('SA', 'CVRP'): CvrpSolution, ('SA', 'TSP'): TspSolution,
   ('GA', 'CRP'): None, ('GA', 'CVRP'): CvrpChromosome, ('GA', 'TSP'): TspChromosome,
@@ -86,25 +91,30 @@ def build_algorithm(algorithm, n):
     return SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(120))
 
   if algorithm == 'PSO':
-    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(10))
+    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(100))
 
   raise ArgumentTypeError("invalid algorithm: {}".format(algorithm))
 
 
 def build_solution_builder(algorithm: str, problem: str, pop_size: int):
-  if SOLUTION_TYPES[algorithm, problem] is None:
+  if ARGS_BUILDER[algorithm, problem] is None:
     raise NotImplementedError("{} wasn't implemented with {}".format(problem, algorithm))
 
   if algorithm in SINGLE_SOLUTION:
-    return SOLUTION_TYPES[algorithm, problem]
+    return ARGS_BUILDER[algorithm, problem]
 
-  return lambda inst: [SOLUTION_TYPES[algorithm, problem](inst) for _ in range(pop_size)]
+  if algorithm == 'PSO' and problem == 'CVRP':
+    return lambda inst: [CvrpParticle(inst, CvrpParticle.grasp(inst, .1)) for _ in range(pop_size)]
+
+  return lambda inst: [ARGS_BUILDER[algorithm, problem](inst) for _ in range(pop_size)]
 
 
 def parse_args():
   parser = ArgumentParser()
-  parser.add_argument("problem", type=str.upper, help="problem to solve", choices=['CRP', 'CVRP', 'TSP'])
-  parser.add_argument("algorithm", type=str.upper, help="algorithm to use", choices=['ACO', 'GA', 'PSO', 'SA'])
+  parser.add_argument("problem", type=str.upper, help="problem to solve", choices=INSTANCE_TYPES.keys())
+
+  algorithms = set(x[0] for x in ARGS_BUILDER.keys())
+  parser.add_argument("algorithm", type=str.upper, help="algorithm to use", choices=algorithms)
 
   # FIXME: the parameters are ignored
   parser.add_argument("-p", "--params", type=extract_parameters, help="parameters for the algorithm (ignored!)")
@@ -118,9 +128,9 @@ def parse_args():
   args = parser.parse_args()
 
   if args.repeat is None:
-    args.repeat = 1
+    args.repeat = DEFAULT_REPEAT
   if args.size is None:
-    args.size = 25
+    args.size = DEFAULT_POP_SIZE
 
   instance = read_instance(args.input, args.problem)
   n = instance.get_n() + 1 if args.problem == 'CVRP' else instance.get_n()
