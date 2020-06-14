@@ -41,6 +41,7 @@ from combinatorial.tsp.tsp_solution import TspSolution
 from stopping.max_no_improve import MaxNoImprove
 from stopping.time_limit import TimeLimit
 
+
 INSTANCE_TYPES = {'CRP': Crp, 'CVRP': Cvrp, 'TSP': Tsp}
 
 SINGLE_SOLUTION = {'SA'}
@@ -110,7 +111,6 @@ def parse_args():
   parser.add_argument("-s", "--size", type=int, help="population size")
 
   parser.add_argument("-i", "--input", type=FileType('r'), default=sys.stdin, help="file to read instance")
-  # FIXME: the output file is ignored
   parser.add_argument("-o", "--output", type=FileType('w'), default=sys.stdout, help="file to write results")
 
   parser.add_argument("-r", "--repeat", type=int, help="number of times to execute")
