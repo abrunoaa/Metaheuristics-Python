@@ -18,12 +18,12 @@
 import sys
 from argparse import ArgumentParser, FileType, ArgumentTypeError
 from copy import deepcopy
-from random import randrange
 from time import process_time as time
 from typing import Callable
 
 from combinatorial.ant_colony import AntColonyOptimization
 from combinatorial.crp.crp import Crp
+from combinatorial.crp.crp_neighborhood import CrpNeighborhood
 from combinatorial.crp.crp_solution import CrpSolution
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_ant import CvrpAnt
@@ -39,23 +39,23 @@ from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_ant import TspAnt
 from combinatorial.tsp.tsp_chromosome import TspChromosome
 from combinatorial.tsp.tsp_solution import TspSolution
-from stopping.max_iterations import MaxIterations
+from combinatorial.variable_neighborhood import VariableNeighborhoodSearch
 from stopping.max_no_improve import MaxNoImprove
 from stopping.time_limit import TimeLimit
-
 
 DEFAULT_REPEAT = 1
 DEFAULT_POP_SIZE = 25
 
 INSTANCE_TYPES = {'CRP': Crp, 'CVRP': Cvrp, 'TSP': Tsp}
 
-SINGLE_SOLUTION = {'SA'}
+SINGLE_SOLUTION = {'SA', 'VNS'}
 
 ARGS_BUILDER = {
   ('ACO', 'CRP'): None, ('ACO', 'CVRP'): CvrpAnt, ('ACO', 'TSP'): TspAnt,
-  ('SA', 'CRP'): CrpSolution, ('SA', 'CVRP'): CvrpSolution, ('SA', 'TSP'): TspSolution,
   ('GA', 'CRP'): None, ('GA', 'CVRP'): CvrpChromosome, ('GA', 'TSP'): TspChromosome,
   ('PSO', 'CRP'): None, ('PSO', 'CVRP'): CvrpParticle, ('PSO', 'TSP'): None,
+  ('SA', 'CRP'): CrpSolution, ('SA', 'CVRP'): CvrpSolution, ('SA', 'TSP'): TspSolution,
+  ('VNS', 'CRP'): CrpNeighborhood, ('VNS', 'CVRP'): None, ('VNS', 'TSP'): None,
 }
 
 
@@ -93,6 +93,9 @@ def build_algorithm(algorithm, n):
   if algorithm == 'PSO':
     return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(100))
 
+  if algorithm == 'VNS':
+    return VariableNeighborhoodSearch.build(MaxNoImprove(1000))
+
   raise ArgumentTypeError("invalid algorithm: {}".format(algorithm))
 
 
@@ -116,7 +119,7 @@ def parse_args():
   algorithms = set(x[0] for x in ARGS_BUILDER.keys())
   parser.add_argument("algorithm", type=str.upper, help="algorithm to use", choices=algorithms)
 
-  # FIXME: the parameters are ignored
+  # FIXME: the parameters for the algorithm are ignored
   parser.add_argument("-p", "--params", type=extract_parameters, help="parameters for the algorithm (ignored!)")
   parser.add_argument("-s", "--size", type=int, help="population size")
 
@@ -162,24 +165,32 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
 
 
 def run_and_print(instance, metaheuristic, solution_builder, number_of_tests, output):
+  tests_run = 0
   avg_answer = 0
   avg_time = 0
   best, worst = float("inf"), float("-inf")
 
-  output.write('elapsed;fitness;solution\n')
-  for ans, elapsed in run(instance, metaheuristic, solution_builder, number_of_tests):
-    fitness = ans.get_fitness() if isinstance(ans.get_fitness(), int) else round(ans.get_fitness(), 2)
-    output.write('{:.2f}s;{};{}\n'.format(elapsed, fitness, ans.get_solution()))
-    output.flush()
+  try:
+    output.write('elapsed;fitness;solution\n')
+    for ans, elapsed in run(instance, metaheuristic, solution_builder, number_of_tests):
+      fitness = ans.get_fitness() if isinstance(ans.get_fitness(), int) else round(ans.get_fitness(), 2)
+      output.write('{:.2f}s;{};{}\n'.format(elapsed, fitness, ans.get_solution()))
+      output.flush()
 
-    best = min(best, ans.get_fitness())
-    worst = max(worst, ans.get_fitness())
-    avg_answer += ans.get_fitness()
-    avg_time += elapsed
-  avg_time /= number_of_tests
-  avg_answer /= number_of_tests
+      best = min(best, ans.get_fitness())
+      worst = max(worst, ans.get_fitness())
+      avg_answer += ans.get_fitness()
+      avg_time += elapsed
+      tests_run += 1
+  except KeyboardInterrupt:
+    pass
+  if not tests_run:
+    return
 
-  if isinstance(best, int):
+  avg_time /= tests_run
+  avg_answer /= tests_run
+
+  if not isinstance(best, int):
     best = round(best, 2)
     worst = round(worst, 2)
 

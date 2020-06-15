@@ -144,7 +144,7 @@ class CrpSolution(Solution):
 
     return cost
 
-  def neighbor(self):
+  def _get_changing_candidates(self):
     n = self.crp.n
     tree = self.tree
 
@@ -157,7 +157,44 @@ class CrpSolution(Solution):
         if self._isvalid(u, n):
           candidates.append((self._change_in_cost(u, n), u, n))
 
-    if len(candidates) == 0:
+    return candidates
+
+  def _exchange_inplace(self, u: int, p: int):
+    v = self.tree[u]
+    while v != self.crp.n:
+      self.energy[v] -= self.energy[u]
+      v = self.tree[v]
+
+    v = p
+    while v != self.crp.n:
+      self.energy[v] += self.energy[u]
+      v = self.tree[v]
+
+    if self.tree[u] == self.crp.n:
+      self.go_sub -= 1
+    elif p == self.crp.n:
+      self.go_sub += 1
+
+    self.tree[u] = p
+
+  def local_search(self):
+    n = self.crp.n
+    while True:
+      candidates = []
+      for c in self._get_changing_candidates():
+        if c[0] > 0 and (c[2] != n or self.go_sub < n) and (self.go_sub > 1 or self.tree[c[1]] != n):
+          candidates.append(c)
+      if not candidates:
+        break
+
+      change = min(candidates)
+      self._exchange_inplace(change[1], change[2])
+      self.fitness -= change[0]
+      self.validate()
+
+  def neighbor(self):
+    candidates = self._get_changing_candidates()
+    if not candidates:
       raise RuntimeError("Solution trapped!")
 
     candidates.sort(reverse=True, key=lambda x: x[0])
@@ -166,16 +203,12 @@ class CrpSolution(Solution):
     for x in candidates:
       r -= x[0] - mn
       if r <= 0:
-        new_tree = copy(tree)
+        new_tree = copy(self.tree)
         new_tree[x[1]] = x[2]
-        assert tree != new_tree
+        assert self.tree != new_tree
         return CrpSolution(self.crp, new_tree, self.fitness - x[0])
 
     raise RuntimeError("No solutions found!")
-
-  def local_search(self):
-    # TODO: implement this
-    pass
 
   def _eval_energy(self):
     n = self.crp.n
@@ -229,7 +262,9 @@ class CrpSolution(Solution):
       assert self.go_sub == sum(tree[u] == n for u in range(n)), "Wrong counter for nodes reaching substation"
       assert self.energy == self._eval_energy(), "Wrong energy values"
       assert sum(self.energy[u] for u in range(n) if tree[u] == n) == n, "Wrong energy calculation"
-      assert self.fitness == self._eval_fitness(), "Wrong fitness {} != {}".format(self.fitness, self._eval_fitness())
+
+      fitness_diff = abs(self.fitness - self._eval_fitness()) < 1e-3
+      assert fitness_diff, "Wrong fitness {} != {}".format(self.fitness, self._eval_fitness())
 
   @staticmethod
   def generate(crp: Crp):
