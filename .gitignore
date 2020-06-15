@@ -5,6 +5,3 @@
 *.pyc
 *.so
 *.o
-
-# WIP
-*neighborhood.py
