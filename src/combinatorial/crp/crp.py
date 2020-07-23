@@ -47,6 +47,9 @@ class Crp(Instance):
     self.cable_capacity = cable_capacity
     self.cable_cost = cable_cost
 
+  def get_best(self):
+    return None
+
   def get_n(self):
     """
     Returns the number of turbines, which doesn't include the substation.

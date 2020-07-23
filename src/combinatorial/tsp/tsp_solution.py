@@ -14,12 +14,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-from random import shuffle, randrange
-from typing import List, Callable
+#
+from random import randrange, shuffle
+from typing import List
 
 from combinatorial.solution import Solution
 from combinatorial.tsp.tsp import Tsp
+from combinatorial.tsp.k_opt import two_opt
 
 
 class TspSolution(Solution):
@@ -32,15 +33,8 @@ class TspSolution(Solution):
     :param tour: Initial tour, which must end with node 0. If it's null, then a solution is generated
     """
     if tour is None:
-      tour = [i for i in range(1, tsp.get_n())]
+      tour = [u for u in range(1, tsp.get_n())]
       shuffle(tour)
-      tour += [0]
-
-    assert tsp.get_n() >= 3, "The solution will fail if there are less than 3 nodes"
-    assert min(tour) >= 0, "Invalid node: {} < 0".format(min(tour))
-    assert max(tour) < tsp.get_n(), "Invalid node: {} >= {}".format(max(tour), tsp.get_n())
-    assert len(set(tour)) == tsp.get_n(), "Duplicates found in tour"
-    assert tour[-1] == 0, "Last node in tour must be 0"
 
     self.tsp = tsp
     self.tour = tour
@@ -89,57 +83,11 @@ class TspSolution(Solution):
 
     :return: None
     """
-    self.fitness -= TspSolution.two_opt(self.tour, self.tsp.cost)
+    self.fitness -= two_opt(self.tour, self.tsp.cost)
     self.validate()
 
   def _evaluate_fitness(self):
     self.fitness = sum(self.tsp.cost(self.tour[i - 1], self.tour[i]) for i in range(self.tsp.get_n()))
-
-  @staticmethod
-  def two_opt(tour: List[int], distance: Callable):
-    """
-    Inplace 2-opt implementation for routing problems.
-
-    If tour is None or len(tour) < 2, the function will simply return 0 without any errors.
-
-    :param tour: A list-like that represents a tour, which will be modified
-    :param distance: A function which take as argument two nodes and returns a number representing distance
-    :return: The total improvement or 0 if tour is None or len(tour) < 2
-    """
-    if tour is None or len(tour) < 2:
-      return 0
-    assert len(set(tour)) == len(tour), "Duplicates found in tour: {}".format(tour)
-    assert tour[-1] == 0, "Expected depot at end of tour, found {}".format(tour[-1])
-
-    improve = 0
-    n = len(tour)
-    while True:
-      best = 0
-      left = None
-      right = None
-      dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
-      for i in range(-1, n - 3):
-        a = tour[i]
-        b = tour[i + 1]
-        for j in range(i + 2, n - 1):
-          c = tour[j]
-          d = tour[j + 1]
-          reduce = dis[i + 1] + dis[j + 1] - distance(a, c) - distance(b, d)
-          if reduce > best:
-            best = reduce
-            left = i + 1
-            right = j
-
-      if best == 0:
-        # handle implementation problems
-        assert len(set(tour)) == len(tour) and tour[-1] == 0, "Invalid state after execution"
-        return improve
-
-      assert left < right
-      improve += best
-      tour[left: right + 1] = tour[left: right + 1][::-1]
-      assert tour[-1] == 0
-      assert len(set(tour)) == n
 
   # noinspection PyUnreachableCode
   def validate(self):

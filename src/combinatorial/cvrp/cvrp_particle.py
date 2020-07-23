@@ -72,4 +72,4 @@ class CvrpParticle(Particle, CvrpSolution):
     add_to_tour(gbest_range)
 
     self.tour = tour
-    self._evaluate_fitness()
+    self._find_fitness_and_optimal_trucks()

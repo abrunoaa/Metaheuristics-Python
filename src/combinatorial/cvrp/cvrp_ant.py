@@ -27,7 +27,7 @@ class CvrpAnt(Ant, CvrpSolution):
     super().__init__(cvrp, tour)
 
   def update_delta(self, delta) -> None:
-    change = 1.0 / self.fitness
+    change = 1 / self.fitness
     for i, j in self._truck_ranges():
       u = 0
       for v in self.tour[i: j + 1]:
@@ -37,28 +37,30 @@ class CvrpAnt(Ant, CvrpSolution):
 
   def travel(self, alpha, beta, pheromone, quality):
     n = len(pheromone) - 1
-
-    assert len(self.tour) == n, "Nodes between tour and pheromone: {} != {}".format(len(self.tour), n)
+    self.tour.clear()
 
     u = 0
     load = 0
-    candidate = [u for u in range(0, n + 1)]
-    for i in range(0, len(candidate) - 1):
-      assert candidate[0] == 0, "Implementation error: changed candidate 0 to {}".format(candidate[0])
-
+    candidate = list(range(n + 1))
+    while len(candidate) > 1:
       # FIXME:
       #  Why the solution is better for higher values of alpha and beta?
       #  Because the variables are small and becomes 0?
-      probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in candidate]
-      u = candidate[roulette(x for x in probability)]
-
-      if u == 0 or load + self.cvrp.get_demand(u) > self.cvrp.capacity:
+      if u == 0:
+        load = 0
         probability = [pheromone[0][v] ** alpha * quality[0][v] ** beta for v in candidate[1:]]
         u = candidate[roulette(x for x in probability) + 1]
-        load = 0
+      else:
+        probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in candidate]
+        # print(u, candidate[0], pheromone[u][0], alpha, quality[u][0], beta)
+        # print(probability)
+        u = candidate[roulette(x for x in probability)]
+        if load + self.cvrp.get_demand(u) > self.cvrp.capacity:
+          u = 0
 
-      load += self.cvrp.get_demand(u)
-      candidate.remove(u)
-      self.tour[i] = u
+      if u:
+        load += self.cvrp.get_demand(u)
+        candidate.remove(u)
+        self.tour.append(u)
 
-    self._evaluate_fitness()
+    self._find_fitness_and_optimal_trucks()

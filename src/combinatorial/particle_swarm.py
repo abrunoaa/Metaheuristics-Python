@@ -18,7 +18,8 @@
 from copy import deepcopy
 
 from combinatorial.metaheuristic import MetaheuristicPopulationBased
-from util.range_util import ensure_range
+
+plt = []
 
 
 class ParticleSwarm(MetaheuristicPopulationBased):
@@ -45,13 +46,15 @@ class ParticleSwarm(MetaheuristicPopulationBased):
   def execute(self, particles):
     gbest = min(particles, key=lambda particle: particle.get_fitness())
 
-    # FIXME: currently using variable args
+    # FIXME: currently using dynamic parameters
     # w = self.__w
     # c1 = self.__c1
     # c2 = self.__c2
     self.__stopping_condition.start()
     while not self.__stopping_condition:
       t = self.__stopping_condition.timing()
+      # print(self.__stopping_condition.counter, t)
+      plt.append(t)
       w = 1 - t
       c1 = .3 * t
       c2 = .5 * t

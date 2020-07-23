@@ -1,4 +1,4 @@
-#  tsp_optimal.py
+#  tsp_brute.py
 #
 #  Copyright (c) 2020 Bruno Almêda de Oliveira <abrunoaa@gmail.com>
 #
@@ -18,7 +18,7 @@
 import sys
 
 from combinatorial.tsp.tsp import Tsp
-from combinatorial.tsp.tsp_optimal import tsp_optimal
+from combinatorial.tsp.tsp_brute import tsp_optimal
 
 if __name__ == "__main__":
   instance = Tsp.read(sys.argv[1])

@@ -24,6 +24,15 @@ class Instance(ABC):
   """
 
   @abstractmethod
+  def get_best(self):
+    """
+    The best known (or optimum) solution for this instance.
+
+    :return: The best solution value.
+    """
+    pass
+
+  @abstractmethod
   def get_n(self):
     """
     Number of nodes in this instance.

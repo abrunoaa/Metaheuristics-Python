@@ -16,6 +16,7 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 from copy import deepcopy
+from random import random
 from typing import List
 
 from combinatorial.ant import Ant
@@ -34,7 +35,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
   @staticmethod
   def default_pheromone(dimension):
-    return [[0.5] * dimension] * dimension
+    return [[0.5 for _ in range(dimension)] for _ in range(dimension)]
 
   def __init__(self, args):
     # TODO: change args to **kwargs
@@ -42,17 +43,20 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     self.__alpha = args[0]
     self.__beta = args[1]
     self.__rho = args[2]
+    self.__q = 1000
     self.__stopping_condition = args[3]
     self.__pheromone = args[4]
 
   def _update_pheromone(self, population: List[Ant]):
     n = len(self.__pheromone)
-    delta = [[0] * n] * n
+    delta = [[0 for _ in range(n)] for _ in range(n)]
     for x in population:
       x.update_delta(delta)
+
+    mx = max(max(delta))
     for i in range(n):
       for j in range(n):
-        self.__pheromone[i][j] = (1 - self.__rho) * self.__pheromone[i][j] + self.__rho * delta[i][j]
+        self.__pheromone[i][j] = (1 - self.__rho) * self.__pheromone[i][j] + self.__rho * delta[i][j] / mx + 0.5
 
   def execute(self, population: List[Ant]):
     instance = population[0].get_instance()
@@ -60,23 +64,41 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
     # TODO: raise this value to the power of beta instead of calculating inside ant, which may improve speed
     cost = instance.cost
-    quality = [[1.0 / cost(u, v) if cost(u, v) != 0 else float('inf') for v in range(n)] for u in range(n)]
+    quality = [[self.__q / cost(u, v) if cost(u, v) != 0 else 2 * self.__q for v in range(n)] for u in range(n)]
 
     population.sort(key=lambda x: x.get_fitness())
     best = deepcopy(population[0])
     self.__stopping_condition.start()
+    reboot = 0
     while not self.__stopping_condition:
+      if reboot == 50:
+        reboot = 0
+        for u in range(n):
+          for v in range(n):
+            self.__pheromone[u][v] = 0.5
+
+      reboot += 1
+      t = self.__stopping_condition.timing()
+      # print(t)
+      # print([x for x in self.__pheromone])
+      alpha = 10 * t
+      beta = 20 * t if t < .5 else 20
       for ant in population:
-        ant.travel(self.__alpha, self.__beta, self.__pheromone, quality)
+        ant.travel(alpha, beta, self.__pheromone, quality)
         ant.local_search()
 
       population.sort(key=lambda x: x.get_fitness())
       self._update_pheromone(population)
+      # if t > .5:
+      #   for p in population:
+      #     print(p)
 
       if population[0].get_fitness() < best.get_fitness():
+        # print('Improved!')
         best = deepcopy(population[0])
-        self.__stopping_condition.update(True)
+        self.__stopping_condition.update(improved = True)
+        reboot = 0
       else:
-        self.__stopping_condition.update(False)
+        self.__stopping_condition.update(improved = False)
 
     return best

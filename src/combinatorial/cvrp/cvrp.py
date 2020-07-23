@@ -26,7 +26,13 @@ class Cvrp(Instance):
   Instance of CVRP.
   """
 
-  def __init__(self, n: int, capacity: int, demand: List[int], locations: List[Tuple[int, int]]):
+  def __init__(self,
+               n: int,
+               capacity: int,
+               demand: List[int],
+               locations: List[Tuple[int, int]],
+               best: int = None,
+               best_tour: List[int] = None):
     """
     Create an instance.
 
@@ -36,6 +42,8 @@ class Cvrp(Instance):
     :param capacity: Capacity of truck (> 0).
     :param demand: Demand of depot (= 0) and of the n clients (> 0).
     :param locations: Location of depot and of the n clients.
+    :param best:
+    :param best_tour:
     """
     assert n >= 2, "Need at least 2 clients: {} < 2".format(n)
     assert capacity > 0, "Invalid capacity: {}".format(capacity)
@@ -46,10 +54,33 @@ class Cvrp(Instance):
     assert min(demand[1:]) > 0, "Invalid demand: {}".format(min(demand))
     assert max(demand) <= capacity, "Demand doesn't fit on truck: {} > {}".format(max(demand), capacity)
 
+    if best is not None:
+      assert best_tour[0] == 0, "Best tour must start at depot"
+      assert best_tour[-1] == 0, "Best tour must end in depot"
+      assert len(set(best_tour)) == n + 1
+      assert all(x >= 0 for x in best_tour)
+      assert all(x <= n for x in best_tour)
+      assert all(best_tour[i - 1] != best_tour[i] for i in range(1, len(best_tour)))
+
+      visited = set()
+      for u in best_tour:
+        if u:
+          assert u not in visited
+          visited.add(u)
+
     self.n = n
     self.location = locations
     self.capacity = capacity
     self.demand = demand
+    self.best = best
+    self.best_tour = best_tour
+
+    if self.best:
+      expected_best = sum(self.cost(best_tour[i - 1], best_tour[i]) for i in range(len(best_tour)))
+      assert expected_best == best, "Invalid optimal value: expected {} but was {}".format(expected_best, best)
+
+  def get_best(self):
+    return self.best
 
   def get_n(self):
     return self.n
@@ -120,7 +151,16 @@ class Cvrp(Instance):
 
     n, c = map(int, content[0])
     demand = list(map(int, content[1]))
-    locations = list(tuple(map(int, x)) for x in content[2:])
+    locations = list(tuple(map(int, x)) for x in content[2: n + 2])
+
+    try:
+      opt = int(content[n + 2][0])
+      opt_tour = list(map(int, content[n + 3]))
+    except IndexError:
+      opt = None
+      opt_tour = None
 
     # noinspection PyTypeChecker
-    return Cvrp(n - 1, c, demand, locations)
+    cvrp = Cvrp(n - 1, c, demand, locations, opt, opt_tour)
+
+    return cvrp

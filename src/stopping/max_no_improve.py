@@ -27,6 +27,9 @@ class MaxNoImprove(StoppingCondition):
     """
     :param max_no_improve: Maximum of iterations without improving.
     """
+    if max_no_improve < 1:
+      raise ValueError("Invalid iteration limit: {} < 1".format(max_no_improve))
+
     self.counter = None
     self.phi = None
     self.max_no_improve = max_no_improve
@@ -45,6 +48,7 @@ class MaxNoImprove(StoppingCondition):
       self.counter += 1
 
   def timing(self) -> float:
-    phi = self.phi * .99
+    phi = self.phi * max(0.0, 1.0 - 10.0 / self.max_no_improve)
     self.phi = phi + (1 - phi) * (self.counter / self.max_no_improve)
+    # self.phi = self.counter / self.max_no_improve
     return self.phi

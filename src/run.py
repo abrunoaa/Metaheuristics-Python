@@ -33,14 +33,16 @@ from combinatorial.cvrp.cvrp_solution import CvrpSolution
 from combinatorial.genetic_algorithm import GeneticAlgorithm
 from combinatorial.instance import Instance
 from combinatorial.metaheuristic import Metaheuristic
-from combinatorial.particle_swarm import ParticleSwarm
+from combinatorial.particle_swarm import ParticleSwarm, plt
 from combinatorial.simulated_annealing import SimulatedAnnealing
 from combinatorial.tsp.tsp import Tsp
 from combinatorial.tsp.tsp_ant import TspAnt
 from combinatorial.tsp.tsp_chromosome import TspChromosome
 from combinatorial.tsp.tsp_solution import TspSolution
 from combinatorial.variable_neighborhood import VariableNeighborhoodSearch
+from stopping.max_iterations import MaxIterations
 from stopping.max_no_improve import MaxNoImprove
+from stopping.no_stop import NoStop
 from stopping.time_limit import TimeLimit
 
 DEFAULT_REPEAT = 1
@@ -82,16 +84,17 @@ def read_instance(io, problem):
 def build_algorithm(algorithm, n):
   if algorithm == 'ACO':
     pheromone = AntColonyOptimization.default_pheromone(n)
-    return AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxNoImprove(10))
+    return AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxNoImprove(200))
 
   if algorithm == 'GA':
     return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(100))
 
   if algorithm == 'SA':
-    return SimulatedAnnealing.build(1000000, 1, .999, TimeLimit(120))
+    return SimulatedAnnealing.build(100, 1, .999, NoStop())
 
   if algorithm == 'PSO':
-    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(100))
+    # return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxIterations(500))
+    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(25))
 
   if algorithm == 'VNS':
     return VariableNeighborhoodSearch.build(MaxNoImprove(1000))
@@ -121,19 +124,14 @@ def parse_args():
 
   # FIXME: the parameters for the algorithm are ignored
   parser.add_argument("-p", "--params", type=extract_parameters, help="parameters for the algorithm (ignored!)")
-  parser.add_argument("-s", "--size", type=int, help="population size")
+  parser.add_argument("-s", "--size", type=int, default=DEFAULT_POP_SIZE, help="population size")
 
   parser.add_argument("-i", "--input", type=FileType('r'), default=sys.stdin, help="file to read instance")
   parser.add_argument("-o", "--output", type=FileType('w'), default=sys.stdout, help="file to write results")
 
-  parser.add_argument("-r", "--repeat", type=int, help="number of times to execute")
+  parser.add_argument("-r", "--repeat", type=int, default=DEFAULT_REPEAT, help="number of times to execute")
 
   args = parser.parse_args()
-
-  if args.repeat is None:
-    args.repeat = DEFAULT_REPEAT
-  if args.size is None:
-    args.size = DEFAULT_POP_SIZE
 
   instance = read_instance(args.input, args.problem)
   n = instance.get_n() + 1 if args.problem == 'CVRP' else instance.get_n()
@@ -156,48 +154,74 @@ def run(instance: Instance, metaheuristic: Metaheuristic, solution_builder: Call
   """
   if number_of_tests < 1:
     raise ValueError("Invalid number of tests: {}".format(number_of_tests))
+
+  it = 0
   for mh in (deepcopy(metaheuristic) for _ in range(number_of_tests)):
+    plt.clear()
     start = time()
     ans = mh.execute(solution_builder(instance))
     end = time()
+
+    # with open('plot-{}.py'.format(it), 'w') as f:
+    #   f.write('import sys\n')
+    #   f.write('import matplotlib.pyplot as plt\n')
+    #   f.write('plt.plot({})\n'.format(plt))
+    #   f.write('plt.savefig(sys.stdout.buffer)\n')
+
+    it += 1
     elapsed = end - start
     yield ans, elapsed
 
 
 def run_and_print(instance, metaheuristic, solution_builder, number_of_tests, output):
   tests_run = 0
-  avg_answer = 0
   avg_time = 0
-  best, worst = float("inf"), float("-inf")
+  avg_ans, best_ans, worst_ans = 0, float("inf"), float("-inf")
+  avg_gap, best_gap, worst_gap = 0, float("inf"), float("-inf")
+
+  bks = instance.get_best()
+  if bks is None:
+    bks = float("inf")
 
   try:
-    output.write('elapsed;fitness;solution\n')
+    output.write('elapsed;gap;fitness;solution\n')
     for ans, elapsed in run(instance, metaheuristic, solution_builder, number_of_tests):
       fitness = ans.get_fitness() if isinstance(ans.get_fitness(), int) else round(ans.get_fitness(), 2)
-      output.write('{:.2f}s;{};{}\n'.format(elapsed, fitness, ans.get_solution()))
+      gap = 100 * (fitness - bks) / bks
+
+      output.write('{:.2f}s;{:.6}%;{};{}\n'.format(elapsed, gap, fitness, ans.get_solution()))
       output.flush()
 
-      best = min(best, ans.get_fitness())
-      worst = max(worst, ans.get_fitness())
-      avg_answer += ans.get_fitness()
+      best_ans = min(best_ans, ans.get_fitness())
+      worst_ans = max(worst_ans, ans.get_fitness())
+      avg_ans += ans.get_fitness()
+
+      best_gap = min(best_gap, gap)
+      worst_gap = max(worst_gap, gap)
+      avg_gap += gap
+
       avg_time += elapsed
       tests_run += 1
   except KeyboardInterrupt:
     pass
-  if not tests_run:
-    return
 
-  avg_time /= tests_run
-  avg_answer /= tests_run
+  if tests_run:
+    avg_time /= tests_run
+    avg_ans /= tests_run
+    avg_gap /= tests_run
 
-  if not isinstance(best, int):
-    best = round(best, 2)
-    worst = round(worst, 2)
+    if not isinstance(best_ans, int):
+      best_ans = round(best_ans, 2)
+      worst_ans = round(worst_ans, 2)
 
-  output.write('\n')
-  output.write('avg_time;avg_ans;best;worst\n')
-  output.write('{:.2f}s;{:.2f};{};{}\n'.format(avg_time, avg_answer, best, worst))
-  output.flush()
+    output.write('\n')
+    if instance.get_best() and best_ans < instance.get_best():
+      output.write('NEW OPTIMUM: {}'.format(best_ans))
+
+    output.write('avg_time;avg_ans;best_ans;worst_ans;avg_gap;best_gap;worst_gap\n')
+    output.write('{:.2f}s;{:.2f};{};{};{:.6}%;{:.6}%;{:.6}%\n'
+                 .format(avg_time, avg_ans, best_ans, worst_ans, avg_gap, best_gap, worst_gap))
+    output.flush()
 
   if output != sys.stdout:
     output.close()

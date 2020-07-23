@@ -33,9 +33,11 @@ def roulette(values, s=None):
     if isinstance(values, Generator):
       values = list(values)
     s = sum(values)
+  assert s > 0, "Sum of values must be > 0: {}".format(values)
 
   r = random()
   for i, x in enumerate(v / s for v in values):
+    assert x >= 0, "Negative values aren't allowed: {} at index {}".format(x, i)
     r -= x
     if r < 0:
       return i

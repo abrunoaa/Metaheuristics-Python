@@ -1,14 +1,14 @@
 # Metaheuristics
 
-Metaheuristics implementations for 
-[WFCRP](https://ieeexplore.ieee.org/document/7172266), 
-[CVRP](http://neo.lcc.uma.es/vrp/vrp-flavors/capacitated-vrp/) 
-and [TSP](http://www.math.uwaterloo.ca/tsp/).
+Metaheuristics implementations for  
+[TSP](http://www.math.uwaterloo.ca/tsp/),
+[CVRP](http://neo.lcc.uma.es/vrp/vrp-flavors/capacitated-vrp/)
+and [WFCRP](https://ieeexplore.ieee.org/document/7172266).
 
 ## Instances
 
-* [CVRPLIB](http://vrp.galgos.inf.puc-rio.br/index.php/en/)
 * [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/)
+* [CVRPLIB](http://vrp.galgos.inf.puc-rio.br/index.php/en/)
 
 ## Algorithms
 

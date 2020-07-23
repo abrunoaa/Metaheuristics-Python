@@ -65,4 +65,4 @@ class CvrpChromosome(Chromosome, CvrpSolution):
     i = randrange(0, self.cvrp.get_n() - 1)
     j = randrange(i + 1, self.cvrp.get_n()) + 1
     self.tour[i: j] = self.tour[i: j][::-1]
-    self._evaluate_fitness()
+    self._find_fitness_and_optimal_trucks()

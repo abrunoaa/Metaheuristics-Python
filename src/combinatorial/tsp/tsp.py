@@ -26,7 +26,6 @@ try:
 except ImportError:
   GRB = None
   Model = None
-  # noinspection SpellCheckingInspection
   quicksum = None
 
 
@@ -43,6 +42,9 @@ class Tsp(Instance):
     """
     self.n = len(locations)
     self.locations = locations
+
+  def get_best(self):
+    return None
 
   def get_n(self):
     return self.n
