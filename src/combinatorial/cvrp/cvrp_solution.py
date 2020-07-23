@@ -20,11 +20,10 @@ from random import random, randrange
 from typing import Generator, List, Tuple
 
 from combinatorial.cvrp.cvrp import Cvrp
+from combinatorial.cvrp.optimal_split import optimal_truck_split
 from combinatorial.cvrp.two_opt import two_opt
 from combinatorial.solution import Solution
-from combinatorial.tsp.tsp import Tsp, TspOptimizer
 from util.float_util import less_eq
-from util.min_queue import MinQueue
 from util.random_util import roulette
 
 
@@ -32,8 +31,6 @@ class CvrpSolution(Solution):
   """
   Class to represent a solution of CVRP.
   """
-
-  USE_OPTIMIZER = TspOptimizer.AVAILABLE and False
 
   def __init__(self, cvrp: Cvrp, tour: List[int] = None):
     """
@@ -130,76 +127,13 @@ class CvrpSolution(Solution):
     self._two_opt()
     self.validate()
 
-    if CvrpSolution.USE_OPTIMIZER:
-      for i, j in self._truck_ranges():
-        if j - i + 1 > 2:
-          tsp = Tsp([self.cvrp.location[u] for u in self.tour[i: j + 1]])
-          cost, opt = TspOptimizer.get_instance(tsp.get_n()).optimize(tsp)
-          self.tour[i: j + 1] = [self.tour[i + k] for k in opt]
-
-      self._find_fitness_and_optimal_trucks()
-      self.validate()
-
   def _find_fitness_and_optimal_trucks(self):
-    """
-    Given a TSP-like solution, calculates the optimal positions for splitting into trucks.
-
-    Used for building fitness and truck list of current solution, given a valid tour.
-
-    This function calls validate at the end to ensure nothing wrong happened.
-
-    :return: None
-    """
-    cvrp = self.cvrp
-    tour = self.tour
-    cost = cvrp.cost
-    n = cvrp.get_n()
-
-    distances = [cost(tour[i], tour[i + 1]) for i in range(n - 1)]
-
-    # cost to return to the depot after i and continue at i + 1
-    split = [cost(tour[i], 0) + cost(0, tour[i + 1]) - distances[i] for i in range(n - 1)]
-    used = 0
-    i = 0
-    best = None
-    path = [None] * n
-    queue = MinQueue()
-    queue.push((0, -1))
-    for j in range(n):
-      # move right pointer
-      used += cvrp.get_demand(tour[j])
-
-      # move left pointer until the truck load is inside its capacity
-      while used > cvrp.get_capacity():
-        used -= cvrp.get_demand(tour[i])
-        i += 1
-        queue.pop()
-
-      assert i <= j
-
-      # store previous truck begin point
-      best, path[j] = queue.min()
-      if j < n - 1:
-        queue.push((split[j] + best, j))
-
-    self.fitness = best + cost(0, tour[0]) + sum(distances) + cost(tour[-1], 0)
-
-    # recover the begin points
-    self.truck = []
-    v = n - 1
-    while v != -1:
-      self.truck.append(v)
-      v = path[v]
-
-    self.truck = self.truck[::-1]
+    self.fitness, self.truck = optimal_truck_split(self.cvrp, self.tour, self.cvrp.cost)
     self.validate()
 
   def _truck_ranges(self) -> Generator[Tuple[int, int], None, None]:
     """
     Build truck ranges for easy manipulation.
-
-    This way it's better since it avoid using a slow matrix.
-
     :return: A generator with pairs of starting and ending (both inclusive) nodes position for each truck.
     """
     yield 0, self.truck[0]
@@ -209,7 +143,6 @@ class CvrpSolution(Solution):
   def _two_opt(self):
     """
     Execute 2-opt algorithm on current instance.
-
     :return: None.
     """
     tour = [self.tour[i: j + 1] + [0] for i, j in self._truck_ranges()]
@@ -217,7 +150,6 @@ class CvrpSolution(Solution):
 
     self.truck = [x - 1 for x in accumulate(len(t) - 1 for t in tour if len(t) > 1)]
     self.tour = list(chain.from_iterable(x[: -1] for x in tour if len(x) > 1))
-
     self.validate()
 
   # noinspection PyUnreachableCode

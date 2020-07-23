@@ -8,7 +8,7 @@ function execute {
   output_path="$output_base_path/$instance/$2/test"
   mkdir -p "$output_path/"
   echo "Reading from '$file' and writing to '$output_path/$output_file.out'"
-  pypy3 -O run.py "$1" "$2" -r $repeat -s 20 -i "$file" #-o "$output_path/$output_file.out"
+  pypy3 run.py "$1" "$2" -r $repeat -s 20 -i "$file" #-o "$output_path/$output_file.out"
 
   if [ $? != 0 ]; then
     echo "$file"
@@ -25,8 +25,8 @@ function execute {
 #for file in $(find "$input_base_path" -name '*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*X-n101-k25.cvrp'); do
 #for file in $(find "$input_base_path" -name '*[ABEFMP]-n*.cvrp'); do
-#for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
-for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
+for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
+#for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
 #for file in $(find "$input_base_path" -name '*B-n51-k7.cvrp' -o -name '*B-n56-k7.cvrp' -o -name '*E-n13-k4.cvrp' -o -name '*E-n31-k7.cvrp' -o -name '*B-n64-k9.cvrp'); do
 #for file in $(find "$input_base_path" -name '*X-n1001-k43.cvrp'); do
 #for file in $(find "$input_base_path" -name '*.tsp'); do
