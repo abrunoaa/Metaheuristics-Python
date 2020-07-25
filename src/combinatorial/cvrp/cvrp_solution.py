@@ -124,7 +124,11 @@ class CvrpSolution(Solution):
 
     :return: None
     """
-    self._two_opt()
+    tour = [self.tour[i: j + 1] + [0] for i, j in self._truck_ranges()]
+    self.fitness -= two_opt(tour, self.cvrp.get_all_demands(), self.cvrp.get_capacity(), self.cvrp.cost)
+
+    self.truck = [x - 1 for x in accumulate(len(t) - 1 for t in tour if len(t) > 1)]
+    self.tour = list(chain.from_iterable(x[: -1] for x in tour if len(x) > 1))
     self.validate()
 
   def _find_fitness_and_optimal_trucks(self):
@@ -139,18 +143,6 @@ class CvrpSolution(Solution):
     yield 0, self.truck[0]
     for i in range(1, len(self.truck)):
       yield self.truck[i - 1] + 1, self.truck[i]
-
-  def _two_opt(self):
-    """
-    Execute 2-opt algorithm on current instance.
-    :return: None.
-    """
-    tour = [self.tour[i: j + 1] + [0] for i, j in self._truck_ranges()]
-    self.fitness -= two_opt(tour, self.cvrp.get_all_demands(), self.cvrp.get_capacity(), self.cvrp.cost)
-
-    self.truck = [x - 1 for x in accumulate(len(t) - 1 for t in tour if len(t) > 1)]
-    self.tour = list(chain.from_iterable(x[: -1] for x in tour if len(x) > 1))
-    self.validate()
 
   # noinspection PyUnreachableCode
   def validate(self):
