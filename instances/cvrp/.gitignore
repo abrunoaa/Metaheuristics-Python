@@ -1,2 +1,5 @@
 # see http://vrp.galgos.inf.puc-rio.br/index.php/en/
-CVRPLIB/*
+CVRPLIB/
+
+# list of converted files
+converted/

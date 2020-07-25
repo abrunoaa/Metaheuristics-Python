@@ -1,0 +1,5 @@
+[N: the number of nodes including depot] [C: capacity of trucks]
+[Di (separated by spaces): the demand of i-th node, for i in [0, N)]
+[Xi Yi (separated by line breaks): the location of i-th node, for i in [0, N)]
+[B: the best known solution value]
+[Ti (separated by spaces): the sequence of nodes to visit, including depot]
