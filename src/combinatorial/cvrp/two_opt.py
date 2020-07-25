@@ -25,12 +25,13 @@ exchanges = []
 
 
 def __init(n):
+  # ensures that row i has i columns for each i in range [0, n)
   while len(exchanges) < n:
     exchanges.append(list(range(len(exchanges))))
 
 
 def __find_best_optimization(id_i, id_j, tour_i, tour_j, load_i, load_j, demand, cost, capacity):
-  best_reduce, best_i, best_j, op_type = 0, 0, 0, 0
+  best = 0, 0, 0, 0
 
   used_i = 0
   for i in range(len(tour_i)):
@@ -45,10 +46,8 @@ def __find_best_optimization(id_i, id_j, tour_i, tour_j, load_i, load_j, demand,
     while j < len(tour_j) and used_i + used_j <= capacity:
       c, d = tour_j[j - 1], tour_j[j]
       reduce = cost(a, b) + cost(c, d) - cost(a, c) - cost(d, b)
-      if reduce > best_reduce:
-        best_reduce = reduce
-        best_i, best_j = i, j
-        op_type = 1
+      if reduce > best[0]:
+        best = reduce, i, j, 1
 
       used_j += demand[tour_j[j]]
       j += 1
@@ -62,21 +61,21 @@ def __find_best_optimization(id_i, id_j, tour_i, tour_j, load_i, load_j, demand,
     while j < len(tour_j) and (load_i - used_i) + used_j <= capacity:
       c, d = tour_j[j - 1], tour_j[j]
       reduce = cost(a, b) + cost(c, d) - cost(a, d) - cost(c, b)
-      if reduce > best_reduce:
-        best_reduce = reduce
-        best_i, best_j = i, j
-        op_type = 2
+      if reduce > best[0]:
+        best = reduce, i, j, 2
 
       used_j += demand[tour_j[j]]
       j += 1
 
     used_i += demand[b]
 
-  return best_reduce, id_i, id_j, best_i, best_j, op_type
+  return best[0], id_i, id_j, best[1], best[2], best[3]
 
 
 def __do_exchange(exchange, tour, cost):
   improve, id_i, id_j, i, j, op_type = exchange
+  ########################
+  # validation
   assert improve > 0
   assert 0 <= id_i < len(tour)
   assert 0 <= id_j < len(tour)
@@ -90,7 +89,9 @@ def __do_exchange(exchange, tour, cost):
   d = tour[id_j][j]
   assert op_type != 1 or improve == cost(a, b) + cost(c, d) - cost(a, c) - cost(d, b), "invalid improve"
   assert op_type != 2 or improve == cost(a, b) + cost(c, d) - cost(a, d) - cost(c, b), "invalid improve"
+  ########################
 
+  # join first route with the second and vice versa
   r1 = tour[id_i]
   r2 = tour[id_j]
   if op_type == 1:
@@ -123,6 +124,7 @@ def two_opt(tour: list, demand: list, capacity: int, cost: Callable):
   # optimize each route
   improve = sum(tsp_optimizer(sub_tour, cost) for sub_tour in tour)
 
+  # find the best exchange between every pair of routes
   load = [sum(demand[u] for u in sub) for sub in tour]
   candidates = set()
   for i in range(len(tour)):
@@ -133,20 +135,22 @@ def two_opt(tour: list, demand: list, capacity: int, cost: Callable):
 
   # exchange routes to be 2-opt
   while candidates:
+    # do the best improvement
     best, i, j = max(candidates)
-
     improve += __do_exchange(best, tour, cost)
     total = load[i] + load[j]
     load[i] = sum(demand[u] for u in tour[i])
     load[j] = total - load[i]
     assert load[j] == sum(demand[u] for u in tour[j])
 
-    for x in [i, j]:
+    # update the best exchange
+    for h in [i, j]:
       for k in range(len(tour)):
-        if k != x:
-          a, b = (k, x) if k > x else (x, k)
+        if k != h:
+          a, b = (k, h) if k > h else (h, k)
           if exchanges[a][b][0] > 0:
             candidates.remove((exchanges[a][b], a, b))
+
           exchanges[a][b] = __find_best_optimization(a, b, tour[a], tour[b], load[a], load[b], demand, cost, capacity)
           if exchanges[a][b][0] > 0:
             candidates.add((exchanges[a][b], a, b))
