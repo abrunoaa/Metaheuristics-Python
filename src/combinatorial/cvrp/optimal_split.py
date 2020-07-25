@@ -24,12 +24,12 @@ from util.min_queue import MinQueue
 # TODO document this file
 
 
-def optimal_truck_split(cvrp: Cvrp, tour: List[int], cost: Callable):
+def optimal_truck_split(cvrp: Cvrp, tour: List[int]):
   n = cvrp.get_n()
-  distances = [cost(tour[i], tour[i + 1]) for i in range(n - 1)]
+  distances = [cvrp.cost(tour[i], tour[i + 1]) for i in range(n - 1)]
 
   # cost to return to the depot after i and continue at i + 1
-  split = [cost(tour[i], 0) + cost(0, tour[i + 1]) - distances[i] for i in range(n - 1)] + [-1e9]
+  split = [cvrp.cost(tour[i], 0) + cvrp.cost(0, tour[i + 1]) - distances[i] for i in range(n - 1)] + [-1e9]
   used = 0
   i = 0
   best = None
@@ -47,11 +47,11 @@ def optimal_truck_split(cvrp: Cvrp, tour: List[int], cost: Callable):
       queue.pop()
     assert i <= j
 
-    # store previous truck begin point
+    # store previous truck end point
     best, path[j] = queue.min()
     queue.push((split[j] + best, j))
 
-  # recover the begin points
+  # recover the end points
   truck = []
   v = n - 1
   while v != -1:
@@ -59,5 +59,5 @@ def optimal_truck_split(cvrp: Cvrp, tour: List[int], cost: Callable):
     v = path[v]
   truck = truck[::-1]
 
-  fitness = best + cost(0, tour[0]) + sum(distances) + cost(tour[-1], 0)
+  fitness = best + cvrp.cost(0, tour[0]) + sum(distances) + cvrp.cost(tour[-1], 0)
   return fitness, truck

@@ -128,7 +128,7 @@ class CvrpSolution(Solution):
     self.validate()
 
   def _find_fitness_and_optimal_trucks(self):
-    self.fitness, self.truck = optimal_truck_split(self.cvrp, self.tour, self.cvrp.cost)
+    self.fitness, self.truck = optimal_truck_split(self.cvrp, self.tour)
     self.validate()
 
   def _truck_ranges(self) -> Generator[Tuple[int, int], None, None]:

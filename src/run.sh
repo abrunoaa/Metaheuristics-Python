@@ -4,7 +4,7 @@ input_base_path='../instances'
 output_base_path='../results'
 
 function execute {
-  repeat=10
+  repeat=3
   output_path="$output_base_path/$instance/$2/test"
   mkdir -p "$output_path/"
   echo "Reading from '$file' and writing to '$output_path/$output_file.out'"
