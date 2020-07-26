@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-
 from stopping.stopping_condition import StoppingCondition
 
 
@@ -35,7 +34,7 @@ class MultipleCondition(StoppingCondition):
       c.start()
 
   def finished(self) -> bool:
-    return all(c.finished() for c in self.conditions)
+    return any(c.finished() for c in self.conditions)
 
   def update(self, improved: bool) -> None:
     for c in self.conditions:
