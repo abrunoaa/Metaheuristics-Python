@@ -16,11 +16,11 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 from copy import deepcopy
-from random import random
 from typing import List
 
 from combinatorial.ant import Ant
 from combinatorial.metaheuristic import MetaheuristicPopulationBased
+from util.range_util import ensure_range
 
 
 # TODO: document this file
@@ -56,7 +56,8 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
     mx = max(max(delta))
     for i in range(n):
       for j in range(n):
-        self.__pheromone[i][j] = (1 - self.__rho) * self.__pheromone[i][j] + self.__rho * delta[i][j] / mx + 0.5
+        ph = (1 - self.__rho) * self.__pheromone[i][j] + self.__rho * delta[i][j] / mx
+        self.__pheromone[i][j] = ensure_range(ph, .001, .999)
 
   def execute(self, population: List[Ant]):
     instance = population[0].get_instance()
@@ -64,14 +65,18 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
     # TODO: raise this value to the power of beta instead of calculating inside ant, which may improve speed
     cost = instance.cost
-    quality = [[self.__q / cost(u, v) if cost(u, v) != 0 else 2 * self.__q for v in range(n)] for u in range(n)]
+    quality = [[1 / cost(u, v) if cost(u, v) != 0 else -1 for v in range(n)] for u in range(n)]
+    mx = max(max(quality))
+    for u in range(n):
+      for v in range(n):
+        quality[u][v] = mx if quality[u][v] < 0 else quality[u][v] / mx
 
     population.sort(key=lambda x: x.get_fitness())
     best = deepcopy(population[0])
     self.__stopping_condition.start()
     reboot = 0
     while not self.__stopping_condition:
-      if reboot == 50:
+      if reboot == 25:
         reboot = 0
         for u in range(n):
           for v in range(n):
@@ -79,11 +84,10 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
       reboot += 1
       t = self.__stopping_condition.timing()
-      # print(t)
-      # print([x for x in self.__pheromone])
-      alpha = 10 * t
-      beta = 20 * t if t < .5 else 20
+      alpha = 3 * (1 - t)
+      beta = 5 * t
       for ant in population:
+        # FIXME: the population is walking together
         ant.travel(alpha, beta, self.__pheromone, quality)
         ant.local_search()
 
@@ -94,7 +98,6 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
       #     print(p)
 
       if population[0].get_fitness() < best.get_fitness():
-        # print('Improved!')
         best = deepcopy(population[0])
         self.__stopping_condition.update(improved = True)
         reboot = 0

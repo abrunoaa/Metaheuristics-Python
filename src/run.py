@@ -87,10 +87,10 @@ def build_algorithm(algorithm, n):
     return AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxNoImprove(200))
 
   if algorithm == 'GA':
-    return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(100))
+    return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(500))
 
   if algorithm == 'SA':
-    return SimulatedAnnealing.build(100, 1, .999, NoStop())
+    return SimulatedAnnealing.build(1000, 1, .999, NoStop())
 
   if algorithm == 'PSO':
     # return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxIterations(500))

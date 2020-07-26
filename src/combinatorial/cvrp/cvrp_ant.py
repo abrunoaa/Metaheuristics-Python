@@ -35,6 +35,9 @@ class CvrpAnt(Ant, CvrpSolution):
         u = v
       delta[u][0] += change
 
+  # FIXME:
+  #   Why the solution is better for higher values of alpha and beta?
+  #   Because the variables are small and becomes 0?
   def travel(self, alpha, beta, pheromone, quality):
     n = len(pheromone) - 1
     self.tour.clear()
@@ -43,17 +46,14 @@ class CvrpAnt(Ant, CvrpSolution):
     load = 0
     candidate = list(range(n + 1))
     while len(candidate) > 1:
-      # FIXME:
-      #  Why the solution is better for higher values of alpha and beta?
-      #  Because the variables are small and becomes 0?
+      assert candidate[0] == 0, "The first candidate must be the depot"
+
       if u == 0:
         load = 0
         probability = [pheromone[0][v] ** alpha * quality[0][v] ** beta for v in candidate[1:]]
         u = candidate[roulette(x for x in probability) + 1]
       else:
         probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in candidate]
-        # print(u, candidate[0], pheromone[u][0], alpha, quality[u][0], beta)
-        # print(probability)
         u = candidate[roulette(x for x in probability)]
         if load + self.cvrp.get_demand(u) > self.cvrp.capacity:
           u = 0
