@@ -17,9 +17,9 @@
 #
 
 
-def ensure_range(value, min_value=None, max_value=None):
-  if min_value is not None and value < min_value:
+def ensure_range(value, min_value=float('-inf'), max_value=float('inf')):
+  if value <= min_value:
     return min_value
-  if max_value is not None and value > max_value:
+  if value >= max_value:
     return max_value
   return value
