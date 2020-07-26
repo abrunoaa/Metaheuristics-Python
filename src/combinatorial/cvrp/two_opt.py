@@ -17,8 +17,8 @@
 #
 from typing import Callable
 
-# from combinatorial.tsp.k_opt import three_opt as tsp_optimizer
-from combinatorial.tsp.lin_kernighan import lin_kernighan as tsp_optimizer
+from combinatorial.tsp.k_opt import three_opt as tsp_optimizer
+# from combinatorial.tsp.lin_kernighan import lin_kernighan as tsp_optimizer
 
 exchanges = []
 

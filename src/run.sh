@@ -26,14 +26,12 @@ function execute {
 #for file in $(find "$input_base_path" -name '*.crp'); do
 #for file in $(find "$input_base_path" -name '*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*[ABEFMP]-n*.cvrp'); do
-for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
-#for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
+#for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
+for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
 #for file in $(find "$input_base_path" -name '*X-n101-k25.cvrp'); do
 #for file in $(find "$input_base_path" -name '*X-n1001-k43.cvrp'); do
 #for file in $(find "$input_base_path" -name '*.tsp'); do
 #for file in $(find "$input_base_path" -name '*berlin52.tsp'); do
-#  echo Processing "$file"
-#  continue
 
   instance=${file##*.}
   output_file=${file##*/}

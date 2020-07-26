@@ -77,6 +77,7 @@ def __best_move(t: List[int], tour: List[int], cost: Callable):
 
   a = t[-1]
   b = t[0]
+
   # FIXME: actually creates a new copy of t
   tmp = t + [-1, -1]
   best_improve = 0, -1, -1
@@ -97,8 +98,6 @@ def __best_move(t: List[int], tour: List[int], cost: Callable):
       tmp[-1] = v
       assert not __creates_cycle(n, tmp), "Must remove the cycle"
 
-    assert 0 <= u < n
-    assert 0 <= v < n
     improve = cost(tour[a], tour[b]) + cost(tour[u], tour[v]) - cost(tour[a], tour[u]) - cost(tour[v], tour[b])
     if improve > best_improve[0]:
       best_improve = improve, u, v
@@ -116,6 +115,7 @@ def __select_moves(tour: List[int], cost: Callable):
     t = [u, v]
     w = __best_move(t, tour, cost)
     while w[0]:
+      assert w[0] > 0
       improve += w[0]
       t += [w[1], w[2]]
       w = __best_move(t, tour, cost)
@@ -130,10 +130,6 @@ def __select_moves(tour: List[int], cost: Callable):
 
 
 def __do_moves(t: List[int], tour: List[int]):
-  assert len(t) >= 4
-  assert len(set(t)) == len(t), "Duplicates found in changes"
-  assert all(0 <= x < len(tour) for x in t)
-
   n = len(tour)
   new_tour = []
   __travel(n, t, lambda x: new_tour.append(tour[x]))

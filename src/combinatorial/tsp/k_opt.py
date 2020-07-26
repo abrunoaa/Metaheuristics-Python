@@ -57,9 +57,9 @@ def __three_opt_moves(tour: List[int], distance: Callable):
         e, f = tour[k - 1], tour[k]
         aux = dis[i] + dis[j] + dis[k]
         update_best(aux - distance(a, c) - distance(b, e) - distance(d, f), [(i, j), (j, k)])
-        update_best(aux - distance(a, d) - distance(b, f) - distance(c, e), [(j, k), (i, k)])
-        update_best(aux - distance(a, e) - distance(b, d) - distance(c, f), [(i, j), (i, k)])
-        update_best(aux - distance(a, d) - distance(b, e) - distance(c, f), [(i, j), (j, k), (i, k)])
+        update_best(aux - distance(a, d) - distance(b, e) - distance(c, f), [(i, j), (j, k), (k - n, i)])
+        update_best(aux - distance(a, d) - distance(b, f) - distance(c, e), [(j, k), (k - n, i)])
+        update_best(aux - distance(a, e) - distance(b, d) - distance(c, f), [(i, j), (k - n, i)])
 
   return best
 
@@ -82,6 +82,9 @@ def __run(method: Callable, tour: List[int], distance: Callable):
 
     dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
     best = method(tour, distance)
+
+  if tour[-1] != 0:
+    rotate(tour, tour.index(0) + 1)
 
   assert tour[-1] == 0, "Unexpected change in the last node"
   assert len(set(tour)) == len(tour), "Duplicated node after execution"
@@ -159,8 +162,11 @@ def __run_generic(tour: List[int], distance: Callable, k: int):
     rotate(tour, (depot if depot < n else 0))
     dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
 
-  assert k < 2 or __two_opt_moves(tour, distance)[0] == 0, "Still has optimization: {}".format(__two_opt_moves(tour, distance))
-  assert k < 3 or __three_opt_moves(tour, distance)[0] == 0, "Still has optimization: {}".format(__three_opt_moves(tour, distance))
+  assert k < 2 or __two_opt_moves(tour, distance)[0] == 0, \
+      "Still has optimization: {}".format(__two_opt_moves(tour, distance))
+  assert k < 3 or __three_opt_moves(tour, distance)[0] == 0, \
+      "Still has optimization: {}".format(__three_opt_moves(tour, distance))
+
   return improve
 
 
