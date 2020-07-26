@@ -75,22 +75,21 @@ def __find_best_optimization(id_i, id_j, tour_i, tour_j, load_i, load_j, demand,
 
 def __do_exchange(exchange, tour, cost):
   improve, id_i, id_j, i, j, op_type = exchange
-  ########################
-  # validation
-  assert improve > 0
-  assert 0 <= id_i < len(tour)
-  assert 0 <= id_j < len(tour)
-  assert 0 <= i < len(tour[id_i])
-  assert 0 <= j < len(tour[id_j])
-  assert op_type in [1, 2]
+  # noinspection PyUnreachableCode
+  if __debug__:
+    assert improve > 0
+    assert 0 <= id_i < len(tour)
+    assert 0 <= id_j < len(tour)
+    assert 0 <= i < len(tour[id_i])
+    assert 0 <= j < len(tour[id_j])
+    assert op_type in [1, 2]
 
-  a = tour[id_i][i - 1]
-  b = tour[id_i][i]
-  c = tour[id_j][j - 1]
-  d = tour[id_j][j]
-  assert op_type != 1 or improve == cost(a, b) + cost(c, d) - cost(a, c) - cost(d, b), "invalid improve"
-  assert op_type != 2 or improve == cost(a, b) + cost(c, d) - cost(a, d) - cost(c, b), "invalid improve"
-  ########################
+    a = tour[id_i][i - 1]
+    b = tour[id_i][i]
+    c = tour[id_j][j - 1]
+    d = tour[id_j][j]
+    assert op_type != 1 or improve == cost(a, b) + cost(c, d) - cost(a, c) - cost(d, b), "Invalid improve"
+    assert op_type != 2 or improve == cost(a, b) + cost(c, d) - cost(a, d) - cost(c, b), "Invalid improve"
 
   # join first route with the second and vice versa
   r1 = tour[id_i]

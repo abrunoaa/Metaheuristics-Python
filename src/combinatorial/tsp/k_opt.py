@@ -24,7 +24,7 @@ n = 0
 dis = []
 
 
-def __two_opt_moves(tour: List[int], distance: Callable):
+def __best_two_opt_move(tour: List[int], distance: Callable):
   global n, dis
 
   best = (0, [])
@@ -39,16 +39,15 @@ def __two_opt_moves(tour: List[int], distance: Callable):
   return best
 
 
-def __three_opt_moves(tour: List[int], distance: Callable):
-  global n, dis
-
-  best = __two_opt_moves(tour, distance)
-
+def __best_three_opt_move(tour: List[int], distance: Callable):
   def update_best(cost, changes):
     nonlocal best
     if cost > best[0]:
       best = cost, changes
 
+  global n, dis
+
+  best = __best_two_opt_move(tour, distance)
   for i in range(0, n - 4):
     a, b = tour[i - 1], tour[i]
     for j in range(i + 2, n - 2):
@@ -64,8 +63,8 @@ def __three_opt_moves(tour: List[int], distance: Callable):
   return best
 
 
-def __run(method: Callable, tour: List[int], distance: Callable):
-  assert tour[-1] == 0, "Expected depot in the last node"
+def __run(opt: Callable, tour: List[int], distance: Callable):
+  assert 0 in tour, "Expected depot in the tour"
   assert len(set(tour)) == len(tour), "Duplicated node"
 
   global n, dis
@@ -73,34 +72,32 @@ def __run(method: Callable, tour: List[int], distance: Callable):
   n = len(tour)
   improve = 0
 
-  dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
-  best = method(tour, distance)
-  while best[0] > 0:
+  while True:
+    dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
+    best = opt(tour, distance)
+    if best[0] == 0:
+      break
+
     for change in best[1]:
       reverse(tour, change[0], change[1])
     improve += best[0]
 
-    dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
-    best = method(tour, distance)
-
   if tour[-1] != 0:
     rotate(tour, tour.index(0) + 1)
 
-  assert tour[-1] == 0, "Unexpected change in the last node"
   assert len(set(tour)) == len(tour), "Duplicated node after execution"
   return improve
 
 
 def two_opt(tour: List[int], distance: Callable):
-  return __run(__two_opt_moves, tour, distance)
+  return __run(__best_two_opt_move, tour, distance)
 
 
 def three_opt(tour: List[int], distance: Callable):
-  return __run(__three_opt_moves, tour, distance)
+  return __run(__best_three_opt_move, tour, distance)
 
 
 # FIXME: this function doesn't work for k > 2
-# noinspection PyUnreachableCode
 def __generic(position: List[int], start: int, k: int, cost: Union[int, float], tour: List[int], distance: Callable):
   if k > 2:
     raise NotImplementedError("Currently doesn't work for k > 2")
@@ -116,7 +113,6 @@ def __generic(position: List[int], start: int, k: int, cost: Union[int, float], 
     assert sum(distance(tour[u - 1], tour[u]) for u in position) == cost, "Invalid cost"
     nodes = [(position[-1] - n, position[0] - 1)]
     nodes += list((position[i - 1], position[i] - 1) for i in range(1, k))
-    assert all(x[0] <= x[1] for x in nodes), str(nodes)
     for r in range(1, 1 << (k - 1)):
       for p in permutations(nodes[: -1]):
         p = list(p) + [nodes[-1]]
@@ -132,7 +128,7 @@ def __generic(position: List[int], start: int, k: int, cost: Union[int, float], 
 
 
 def __run_generic(tour: List[int], distance: Callable, k: int):
-  assert tour[-1] == 0, "Expected depot in the last node"
+  assert 0 in tour, "Expected depot in the tour"
   assert len(set(tour)) == len(tour), "Duplicated node"
 
   global n, dis
@@ -142,8 +138,7 @@ def __run_generic(tour: List[int], distance: Callable, k: int):
 
   dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
   best = __generic([], 0, k, 0, tour, distance)
-  assert all(dis[i] == distance(tour[i - 1], tour[i]) for i in range(n))
-  assert best[0] == __three_opt_moves(tour, distance)[0], "{} {}".format(best, __three_opt_moves(tour, distance))
+  assert best[0] == __best_three_opt_move(tour, distance)[0]
   while best[0] > 0:
     new_tour = []
     for i, j in best[1]:
@@ -155,17 +150,15 @@ def __run_generic(tour: List[int], distance: Callable, k: int):
 
     dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
     best = __generic([], 0, k, 0, tour, distance)
-    assert best[0] == __three_opt_moves(tour, distance)[0], "{} {}".format(best, __three_opt_moves(tour, distance))
+    assert best[0] == __best_three_opt_move(tour, distance)[0]
 
   if tour[-1] != 0:
     depot = tour.index(0) + 1
     rotate(tour, (depot if depot < n else 0))
     dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
 
-  assert k < 2 or __two_opt_moves(tour, distance)[0] == 0, \
-      "Still has optimization: {}".format(__two_opt_moves(tour, distance))
-  assert k < 3 or __three_opt_moves(tour, distance)[0] == 0, \
-      "Still has optimization: {}".format(__three_opt_moves(tour, distance))
+  assert k < 2 or __best_two_opt_move(tour, distance)[0] == 0, "Still has optimization"
+  assert k < 3 or __best_three_opt_move(tour, distance)[0] == 0, "Still has optimization"
 
   return improve
 
