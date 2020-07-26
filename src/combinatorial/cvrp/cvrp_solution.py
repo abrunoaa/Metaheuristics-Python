@@ -16,6 +16,7 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 from itertools import accumulate, chain
+from math import atan2
 from random import random, randrange
 from typing import Generator, List, Tuple
 
@@ -78,6 +79,20 @@ class CvrpSolution(Solution):
       seed = randrange(n) + 1
     if not 1 <= seed <= n:
       raise ValueError("Invalid seed {} not in range [{}, {}]".format(seed, 1, n))
+
+    # FIXME: separate this code in its own function
+    r = random()
+    if r < .6:
+      sign = -1 if r < .3 else +1
+      nodes = sorted(instance.location[1:], key=lambda x: sign * atan2(x[1], x[0]))
+      seed = nodes.index(instance.location[seed])
+      tour = []
+      for i in list(range(seed, n)) + list(range(0, seed)):
+        k = instance.location.index(nodes[i])
+        while k in tour:
+          k = instance.location.index(nodes[i], k + 1)
+        tour.append(k)
+      return tour
 
     tour = [seed]
     cl = set(range(1, n + 1))
