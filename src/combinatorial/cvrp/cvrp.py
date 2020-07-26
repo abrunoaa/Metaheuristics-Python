@@ -134,15 +134,7 @@ class Cvrp(Instance):
     """
     Read an instance from a reader.
 
-    The reader must have the following info (in any order):
-
-    DIMENSION: [integer n representing the number of clients]
-
-    CAPACITY: [integer c representing the capacity of truck]
-
-    NODE_COORD_SECTION [followed by n+1 lines, each one with the the point] x y
-
-    DEMAND_SECTION [followed by n+1 lines, each one with the demand] d
+    The reader must have the format as specified at instances/cvrp/.format.cvrp.
 
     :param reader: Stream to read from.
     :return: A CVRP instance.
