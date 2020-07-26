@@ -17,6 +17,7 @@
 #
 from typing import Callable, List
 
+from combinatorial.tsp.k_opt import __two_opt_moves
 from util.list_util import rotate
 
 # TODO: document this file
@@ -148,4 +149,5 @@ def lin_kernighan(tour: List[int], cost: Callable):
 
   if tour[-1] != 0:
     rotate(tour, tour.index(0) + 1)
+  assert __two_opt_moves(tour, cost)[0] == 0
   return improve
