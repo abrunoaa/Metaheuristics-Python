@@ -99,7 +99,9 @@ def three_opt(tour: List[int], distance: Callable):
 # FIXME: this function doesn't work for k > 2
 # noinspection PyUnreachableCode
 def __generic(position: List[int], start: int, k: int, cost: Union[int, float], tour: List[int], distance: Callable):
-  raise NotImplementedError("Currently doesn't work")
+  if k > 2:
+    raise NotImplementedError("Currently doesn't work for k > 2")
+
   best = (0, [])
 
   if len(position) < k:
