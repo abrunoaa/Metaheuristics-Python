@@ -19,6 +19,8 @@ from typing import Callable, List
 
 from util.list_util import rotate
 
+# TODO: document this file
+
 
 def __travel(n: int, t: List[int], apply: Callable):
   assert len(t) >= 4
@@ -52,6 +54,7 @@ def __travel(n: int, t: List[int], apply: Callable):
 
 
 def __creates_cycle(n: int, t: List[int]):
+  # FIXME: how to do this verification better than O(N)?
   try:
     __travel(n, t, lambda x: None)
   except ValueError:
@@ -74,6 +77,7 @@ def __best_move(t: List[int], tour: List[int], cost: Callable):
 
   a = t[-1]
   b = t[0]
+  # FIXME: actually creates a new copy of t
   tmp = t + [-1, -1]
   best_improve = 0, -1, -1
   for v in range(n):
