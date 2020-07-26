@@ -20,39 +20,43 @@ from typing import Callable, List
 from util.list_util import rotate
 
 
-def __build_neighborhood(n, t):
-  m = len(t)
-  assert m >= 4
-  assert m % 2 == 0
+def __travel(n: int, t: List[int], apply: Callable):
+  assert len(t) >= 4
+  assert len(t) % 2 == 0
+  assert len(set(t)) == len(t), "Duplicates found in changes"
+  assert all(0 <= x < n for x in t)
 
+  m = len(t)
   neighbor = [[(u - 1) % n, (u + 1) % n] for u in range(n)]
   for k in range(m):
     tp = +1 if k % 2 == 0 else -1
     tmp = neighbor[t[k]]
     assert t[(k + tp) % len(t)] in tmp
     tmp[0 if tmp[0] == t[(k + tp) % m] else 1] = t[(k - tp) % m]
-
-  return neighbor
-
-
-def __creates_cycle(n: int, t: List[int]):
-  assert all(0 <= u < n for u in t)
-
-  neighbor = __build_neighborhood(n, t)
-  if any(x[0] == x[1] for x in neighbor):
-    return True
+    if tmp[0] == tmp[1]:
+      raise ValueError("Invalid tour")
 
   vis = [False for _ in range(n)]
   w = t[0]
   prev_node = neighbor[w][0]
   while not vis[w]:
     vis[w] = True
+    apply(w)
     next_node = next(x for x in neighbor[w] if x != prev_node)
     assert prev_node in neighbor[w]
     assert next_node in neighbor[w]
     prev_node, w = w, next_node
 
-  return not all(vis)
+  if not all(vis):
+    raise ValueError("Invalid tour")
+
+
+def __creates_cycle(n: int, t: List[int]):
+  try:
+    __travel(n, t, lambda x: None)
+  except ValueError:
+    return True
+  return False
 
 
 def __best_move(t: List[int], tour: List[int], cost: Callable):
@@ -128,18 +132,7 @@ def __do_moves(t: List[int], tour: List[int]):
 
   n = len(tour)
   new_tour = []
-  neighbor = __build_neighborhood(n, t)
-  vis = [False for _ in range(n)]
-
-  w = t[0]
-  prev_node = neighbor[w][0]
-  while not vis[w]:
-    vis[w] = True
-    new_tour.append(tour[w])
-    next_node = next(x for x in neighbor[w] if x != prev_node)
-    assert prev_node in neighbor[w]
-    assert next_node in neighbor[w]
-    prev_node, w = w, next_node
+  __travel(n, t, lambda x: new_tour.append(tour[x]))
 
   assert set(new_tour) == set(tour), "Wrong nodes in new tour"
   tour[:] = new_tour[:]
