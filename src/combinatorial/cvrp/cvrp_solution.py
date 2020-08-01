@@ -131,7 +131,14 @@ class CvrpSolution(Solution):
     """
     i = randrange(0, self.cvrp.get_n() - 1)
     j = randrange(i + 2, self.cvrp.get_n() + 1)
-    return CvrpSolution(self.cvrp, self.tour[:i] + self.tour[i: j][::-1] + self.tour[j:])
+    new_tour = self.tour[:i] + self.tour[i: j][::-1] + self.tour[j:]
+
+    for k in range(int(random() * self.cvrp.n)):
+      i = randrange(self.cvrp.n)
+      j = randrange(self.cvrp.n)
+      new_tour[i], new_tour[j] = new_tour[j], new_tour[i]
+
+    return CvrpSolution(self.cvrp, new_tour)
 
   def local_search(self):
     """

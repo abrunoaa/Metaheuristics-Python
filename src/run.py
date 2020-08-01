@@ -22,11 +22,13 @@ from time import process_time as time
 from typing import Callable
 
 from combinatorial.ant_colony import AntColonyOptimization
+from combinatorial.bat_algorithm import BatAlgorithm
 from combinatorial.crp.crp import Crp
 from combinatorial.crp.crp_neighborhood import CrpNeighborhood
 from combinatorial.crp.crp_solution import CrpSolution
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_ant import CvrpAnt
+from combinatorial.cvrp.cvrp_bat import CvrpBat
 from combinatorial.cvrp.cvrp_chromosome import CvrpChromosome
 from combinatorial.cvrp.cvrp_particle import CvrpParticle
 from combinatorial.cvrp.cvrp_solution import CvrpSolution
@@ -54,6 +56,7 @@ SINGLE_SOLUTION = {'SA', 'VNS'}
 
 ARGS_BUILDER = {
   ('ACO', 'CRP'): None, ('ACO', 'CVRP'): CvrpAnt, ('ACO', 'TSP'): TspAnt,
+  ('BA', 'CRP'): None, ('BA', 'CVRP'): CvrpBat, ('BA', 'TSP'): None,
   ('GA', 'CRP'): None, ('GA', 'CVRP'): CvrpChromosome, ('GA', 'TSP'): TspChromosome,
   ('PSO', 'CRP'): None, ('PSO', 'CVRP'): CvrpParticle, ('PSO', 'TSP'): None,
   ('SA', 'CRP'): CrpSolution, ('SA', 'CVRP'): CvrpSolution, ('SA', 'TSP'): TspSolution,
@@ -86,18 +89,20 @@ def build_algorithm(algorithm, n):
     pheromone = AntColonyOptimization.default_pheromone(n)
     return AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxNoImprove(200))
 
+  if algorithm == 'BA':
+    return BatAlgorithm.build(pulse_rate = .01, loudness = .99, stop_condition = MaxNoImprove(10 * n))
+
   if algorithm == 'GA':
     return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(500))
 
   if algorithm == 'SA':
-    return SimulatedAnnealing.build(1000, 1, .999, NoStop())
+    return SimulatedAnnealing.build(start_temperature = 1000, min_temperature = 1, alpha = .999, stop_condition = NoStop())
 
   if algorithm == 'PSO':
-    # return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxIterations(500))
-    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(25))
+    return ParticleSwarm.build(w=.5, c1=.2, c2=.3, stopping_condition=MaxNoImprove(n))
 
   if algorithm == 'VNS':
-    return VariableNeighborhoodSearch.build(MaxNoImprove(1000))
+    return VariableNeighborhoodSearch.build(stopping_condition = MaxNoImprove(1000))
 
   raise ArgumentTypeError("invalid algorithm: {}".format(algorithm))
 

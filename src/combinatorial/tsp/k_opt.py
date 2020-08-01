@@ -71,6 +71,7 @@ def __run(opt: Callable, tour: List[int], distance: Callable):
 
   n = len(tour)
   improve = 0
+  initial_cost = sum(distance(tour[i - 1], tour[i]) for i in range(n))
 
   while True:
     dis = [distance(tour[i - 1], tour[i]) for i in range(n)]
@@ -86,6 +87,7 @@ def __run(opt: Callable, tour: List[int], distance: Callable):
     rotate(tour, tour.index(0) + 1)
 
   assert len(set(tour)) == len(tour), "Duplicated node after execution"
+  assert initial_cost - improve == sum(distance(tour[i - 1], tour[i]) for i in range(n))
   return improve
 
 

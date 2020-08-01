@@ -13,7 +13,7 @@ function execute {
   pypy3 run.py "$1" "$2" -r $repeat -s $population_size -i "$file" #-o "$output_path/$output_file.out"
 
   if [ $? != 0 ]; then
-    echo "$file"
+    echo "The execution for file '$file' failed"
   fi
 
 #  mkdir -p "$output_path/plots/"
@@ -43,7 +43,8 @@ for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
 #    execute crp pso
     execute crp sa
   elif [ "$instance" = "cvrp" ]; then
-    execute cvrp aco
+#    execute cvrp aco
+    execute cvrp ba
 #    execute cvrp ga
 #    execute cvrp pso
 #    execute cvrp sa

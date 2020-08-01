@@ -28,6 +28,9 @@ class Solution(ABC):
   def __str__(self):
     return "Solution({}: {})".format(self.get_fitness(), self.get_solution())
 
+  def __lt__(self, other):
+    return self.get_fitness() < other.get_fitness()
+
   @abstractmethod
   def get_instance(self) -> Instance:
     """
