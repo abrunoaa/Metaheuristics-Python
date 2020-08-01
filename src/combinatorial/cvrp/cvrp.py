@@ -98,9 +98,8 @@ class Cvrp(Instance):
     :param v: Node from graph.
     :return: The cost to travel from u to v.
     """
-    diff = lambda i: self.location[u][i] - self.location[v][i]
-    a = diff(0)
-    b = diff(1)
+    a = self.location[u][0] - self.location[v][0]
+    b = self.location[u][1] - self.location[v][1]
     return int(sqrt(a * a + b * b) + 0.5)
 
   def get_capacity(self):
