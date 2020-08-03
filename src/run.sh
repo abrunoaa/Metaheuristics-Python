@@ -2,15 +2,15 @@
 
 input_base_path='../instances'
 output_base_path='../results'
+repeat=30
+population_size=20
 
 function execute {
-  repeat=3
-  population_size=20
-  output_path="$output_base_path/$instance/$2/test"
+  output_path="$output_base_path/$instance/$2"
   mkdir -p "$output_path/"
 
   echo "Reading from '$file' and writing to '$output_path/$output_file.out'"
-  pypy3 run.py "$1" "$2" -r $repeat -s $population_size -i "$file" #-o "$output_path/$output_file.out"
+  pypy3 run.py "$1" "$2" -r $repeat -s $population_size -i "$file" -o "$output_path/$output_file.out"
 
   if [ $? != 0 ]; then
     echo "The execution for file '$file' failed"
@@ -24,12 +24,10 @@ function execute {
 }
 
 #for file in $(find "$input_base_path" -name '*.crp'); do
-#for file in $(find "$input_base_path" -name '*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*[ABEFMP]-n*.cvrp'); do
+for file in $(find "$input_base_path" -name '*X-n*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
-for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
-#for file in $(find "$input_base_path" -name '*X-n101-k25.cvrp'); do
-#for file in $(find "$input_base_path" -name '*X-n1001-k43.cvrp'); do
+#for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
 #for file in $(find "$input_base_path" -name '*.tsp'); do
 #for file in $(find "$input_base_path" -name '*berlin52.tsp'); do
 
@@ -44,9 +42,9 @@ for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
     execute crp sa
   elif [ "$instance" = "cvrp" ]; then
 #    execute cvrp aco
-    execute cvrp ba
+#    execute cvrp ba
 #    execute cvrp ga
-#    execute cvrp pso
+    execute cvrp pso
 #    execute cvrp sa
   elif [ "$instance" = "tsp" ]; then
 #    execute tsp aco
