@@ -25,8 +25,6 @@ dis = []
 
 
 def __best_two_opt_move(tour: List[int], distance: Callable):
-  global n, dis
-
   best = (0, [])
   for i in range(0, n - 2):
     a, b = tour[i - 1], tour[i]

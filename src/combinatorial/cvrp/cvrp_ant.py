@@ -15,6 +15,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
+from random import sample
+
 from combinatorial.ant import Ant
 from combinatorial.cvrp.cvrp import Cvrp
 from combinatorial.cvrp.cvrp_solution import CvrpSolution
@@ -23,44 +25,50 @@ from util.random_util import roulette
 
 class CvrpAnt(Ant, CvrpSolution):
 
-  def __init__(self, cvrp: Cvrp, tour = None):
-    super().__init__(cvrp, tour)
+    def __init__(self, cvrp: Cvrp, tour = None):
+        super().__init__(cvrp, tour)
+        self.neighbor = []
+        self.lower = 0
 
-  def update_delta(self, delta) -> None:
-    change = 1 / self.fitness
-    for i, j in self._truck_ranges():
-      u = 0
-      for v in self.tour[i: j + 1]:
-        delta[u][v] += change
-        u = v
-      delta[u][0] += change
+    def set_neighbors(self, values, lower):
+        self.neighbor = values
+        self.lower = lower
 
-  # FIXME:
-  #   Why the solution is better for higher values of alpha and beta?
-  #   Because the variables are small and becomes 0?
-  def travel(self, alpha, beta, pheromone, quality):
-    n = len(pheromone) - 1
-    self.tour.clear()
+    def update_delta(self, delta) -> None:
+        change = 1 / self.fitness
+        for i, j in self._truck_ranges():
+            u = 0
+            for v in self.tour[i: j + 1]:
+                delta[u][v] += change
+                u = v
+            delta[u][0] += change
 
-    u = 0
-    load = 0
-    candidate = list(range(n + 1))
-    while len(candidate) > 1:
-      assert candidate[0] == 0, "The first candidate must be the depot"
+    # FIXME:
+    #   Why the solution is better for higher values of alpha and beta?
+    #   Because the variables are small and becomes 0?
+    def travel(self, alpha, beta, pheromone, quality):
+        n = len(pheromone) - 1
+        self.tour.clear()
 
-      if u == 0:
+        u = 0
         load = 0
-        probability = [pheromone[0][v] ** alpha * quality[0][v] ** beta for v in candidate[1:]]
-        u = candidate[roulette(x for x in probability) + 1]
-      else:
-        probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in candidate]
-        u = candidate[roulette(x for x in probability)]
-        if load + self.cvrp.get_demand(u) > self.cvrp.capacity:
-          u = 0
+        candidate = set(range(n + 1))
+        while len(candidate) > 1:
+            if len(candidate) <= self.lower:
+                u_candidates = list(candidate)
+            else:
+                u_candidates = [v for v in self.neighbor[u] if v in candidate]
+                if len(u_candidates) < self.lower:
+                    u_candidates += sample(list(candidate), self.lower - len(u_candidates))
 
-      if u:
-        load += self.cvrp.get_demand(u)
-        candidate.remove(u)
-        self.tour.append(u)
+            probability = [pheromone[u][v] ** alpha * quality[u][v] ** beta for v in u_candidates]
+            u = u_candidates[roulette(x for x in probability)]
+            if u == 0 or load + self.cvrp.get_demand(u) > self.cvrp.capacity:
+                u = 0
+                load = 0
+            else:
+                load += self.cvrp.get_demand(u)
+                candidate.remove(u)
+                self.tour.append(u)
 
-    self._find_fitness_and_optimal_trucks()
+        self._find_fitness_and_optimal_trucks()

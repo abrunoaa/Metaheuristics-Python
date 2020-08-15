@@ -48,3 +48,7 @@ class Ant(Solution):
     :return: None
     """
     pass
+
+  @abstractmethod
+  def set_neighbors(self, values, lower):
+    pass
