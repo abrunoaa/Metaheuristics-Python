@@ -88,6 +88,7 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
 
         population.sort(key=lambda x: x.get_fitness())
         best = deepcopy(population[0])
+        ans = [best.get_fitness()]
         self.__stopping_condition.start()
         reboot = 0
         while not self.__stopping_condition:
@@ -119,4 +120,6 @@ class AntColonyOptimization(MetaheuristicPopulationBased):
             else:
                 self.__stopping_condition.update(improved = False)
 
-        return best
+            ans.append(best.get_fitness())
+
+        return ans

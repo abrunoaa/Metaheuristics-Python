@@ -41,6 +41,7 @@ class BatAlgorithm(MetaheuristicPopulationBased):
         r = self.__pulse_rate
         a = self.__loudness
         best = deepcopy(min(bats))
+        ans = [best.get_fitness()]
 
         self.__stop_condition.start()
         while not self.__stop_condition:
@@ -64,6 +65,7 @@ class BatAlgorithm(MetaheuristicPopulationBased):
             if improved:
                 best = deepcopy(tmp)
 
+            ans.append(best.get_fitness())
             self.__stop_condition.update(improved)
 
-        return best
+        return ans

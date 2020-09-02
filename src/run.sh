@@ -10,7 +10,8 @@ function execute {
   mkdir -p "$output_path/"
 
   echo "Reading from '$file' and writing to '$output_path/$output_file.out'"
-  pypy3 -O run.py "$1" "$2" -r $repeat -s $population_size -i "$file" -o "$output_path/$output_file.out"
+  pypy3 -O run.py "$1" "$2" -r $repeat -s $population_size -i "$file" #-o "$output_path/$output_file.out"
+#  python3.8 "plot.py" >"conv.png"
 
   if [ $? != 0 ]; then
     echo "The execution for file '$file' failed"
@@ -27,11 +28,10 @@ function execute {
 #for file in $(find "$input_base_path" -name '*[ABEFMP]-n*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*X-n*.cvrp'); do
 #for file in $(find "$input_base_path" -name '*A-n32-k5.cvrp'); do
-#for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
+for file in $(find "$input_base_path" -name '*A-n80-k10.cvrp'); do
 #for file in $(find "$input_base_path" -name '*.tsp'); do
 #for file in $(find "$input_base_path" -name '*berlin52.tsp'); do
-for file in 'X-n101-k25' 'X-n120-k6' 'X-n125-k30' 'X-n134-k13' 'X-n148-k46' 'X-n153-k22' 'X-n186-k15' 'X-n270-k35' 'X-n313-k71' 'X-n336-k84' 'X-n359-k29' 'X-n439-k37' 'X-n459-k26' 'X-n469-k138' 'X-n502-k39' 'X-n599-k92' 'X-n685-k75' 'X-n733-k159'; do
-  file="../instances/cvrp/$file.cvrp"
+#for file in 'X-n101-k25' 'X-n120-k6' 'X-n125-k30' 'X-n134-k13' 'X-n148-k46' 'X-n153-k22' 'X-n186-k15' 'X-n270-k35' 'X-n313-k71' 'X-n336-k84' 'X-n359-k29' 'X-n439-k37' 'X-n459-k26' 'X-n469-k138' 'X-n502-k39' 'X-n599-k92' 'X-n685-k75' 'X-n733-k159'; do file="../instances/cvrp/$file.cvrp"
 #  echo $file
 #  continue
 
@@ -45,10 +45,10 @@ for file in 'X-n101-k25' 'X-n120-k6' 'X-n125-k30' 'X-n134-k13' 'X-n148-k46' 'X-n
 #    execute crp pso
     execute crp sa
   elif [ "$instance" = "cvrp" ]; then
-    execute cvrp aco
+#    execute cvrp aco
 #    execute cvrp ba
 #    execute cvrp ga
-#    execute cvrp pso
+    execute cvrp pso
 #    execute cvrp sa
   elif [ "$instance" = "tsp" ]; then
 #    execute tsp aco

@@ -45,6 +45,7 @@ class ParticleSwarm(MetaheuristicPopulationBased):
 
   def execute(self, particles):
     gbest = min(particles, key=lambda particle: particle.get_fitness())
+    ans = [gbest.get_fitness()]
 
     # FIXME: currently using dynamic parameters
     # w = self.__w
@@ -67,6 +68,7 @@ class ParticleSwarm(MetaheuristicPopulationBased):
           gbest = deepcopy(p)
           improved = True
 
+      ans.append(gbest.get_fitness())
       self.__stopping_condition.update(improved)
 
-    return gbest
+    return ans

@@ -16,7 +16,7 @@
 #  along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 import sys
-from argparse import ArgumentParser, FileType, ArgumentTypeError
+from argparse import ArgumentParser, ArgumentTypeError, FileType
 from copy import deepcopy
 from time import process_time as time
 from typing import Callable
@@ -42,10 +42,8 @@ from combinatorial.tsp.tsp_ant import TspAnt
 from combinatorial.tsp.tsp_chromosome import TspChromosome
 from combinatorial.tsp.tsp_solution import TspSolution
 from combinatorial.variable_neighborhood import VariableNeighborhoodSearch
-from stopping.max_iterations import MaxIterations
 from stopping.max_no_improve import MaxNoImprove
 from stopping.no_stop import NoStop
-from stopping.time_limit import TimeLimit
 
 DEFAULT_REPEAT = 1
 DEFAULT_POP_SIZE = 25
@@ -90,10 +88,10 @@ def build_algorithm(algorithm, n):
         return AntColonyOptimization.build(pheromone, alpha=1, beta=10, rho=0.5, stopping_condition=MaxNoImprove(250))
 
     if algorithm == 'BA':
-        return BatAlgorithm.build(pulse_rate = .01, loudness = .99, stop_condition = MaxNoImprove(2500))
+        return BatAlgorithm.build(pulse_rate = .01, loudness = .99, stop_condition = MaxNoImprove(500))
 
     if algorithm == 'GA':
-        return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(250))
+        return GeneticAlgorithm.build(crossover=.9, elitism=.9, mutation=.9, stopping_condition=MaxNoImprove(500))
 
     if algorithm == 'SA':
         return SimulatedAnnealing.build(start_temperature = 1000, min_temperature = 1, alpha = .999, stop_condition = NoStop())
@@ -232,5 +230,26 @@ def run_and_print(instance, metaheuristic, solution_builder, number_of_tests, ou
         output.close()
 
 
+def run_once(instance, metaheuristic, solution_builder, number_of_tests, output):
+    ans = metaheuristic.execute(solution_builder(instance))
+
+    # pyplot.scatter(list(range(1, len(ans) + 1)), ans)
+    # pyplot.xlabel('Iteração')
+    # pyplot.ylabel('Solução')
+    # pyplot.savefig('conv.png')
+
+    with open('plot.py', 'w') as f:
+        f.write('import sys\n')
+        f.write('import matplotlib.pyplot as plt\n')
+        f.write('plt.xlabel("Iteração")\n')
+        f.write('plt.ylabel("Solução")\n')
+        f.write('plt.plot({})\n'.format(ans))
+        f.write('plt.grid()\n'.format(ans))
+        f.write('plt.savefig(sys.stdout.buffer)\n')
+
+    return ans
+
+
 if __name__ == '__main__':
-    run_and_print(*parse_args())
+    # run_and_print(*parse_args())
+    run_once(*parse_args())
