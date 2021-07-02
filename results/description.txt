@@ -1,0 +1,5 @@
+crp -> final results with the cable routing problem
+cvrp -> final results with the capacitated vrp
+normal -> 'pure' algorithms
+optimized -> using 2-opt local search
+reset -> restart the iteration counter after improvement
